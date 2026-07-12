@@ -11,9 +11,9 @@
     <PackageReference Include="RabbitMQ.Client" Version="7.2.1" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\src\Core\SlientMoon.Application\SlientMoon.Application.csproj" />
-    <ProjectReference Include="..\src\Infrastructure\SlientMoon.Infrastructure.Persistence\SlientMoon.Infrastructure.Persistence.csproj" />
-  </ItemGroup>
+<ItemGroup>
+  <ProjectReference Include="..\..\Core\SlientMoon.Application\SlientMoon.Application.csproj" />
+  <ProjectReference Include="..\SlientMoon.Infrastructure.Persistence\SlientMoon.Infrastructure.Persistence.csproj" />
+</ItemGroup>
 
 </Project>
