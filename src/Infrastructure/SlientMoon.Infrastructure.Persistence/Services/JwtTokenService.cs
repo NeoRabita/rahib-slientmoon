@@ -70,7 +70,7 @@ namespace SlientMoon.Infrastructure.Persistence.Services
 
         public string GetUserIdFromToken(string token)
         {
-            var handler = new JwtSecurityTokenHandler();
+            var handler = new JwtSecurityTokenHandler();    
             var jwtToken = handler.ReadJwtToken(token);
             return jwtToken.Subject;
         }

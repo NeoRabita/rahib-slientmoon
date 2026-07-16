@@ -55,7 +55,7 @@ namespace SlientMoon.WebApi.Extensions
                 {
                     Name = "Authorization",
                     In = ParameterLocation.Header,
-                    Type = SecuritySchemeType.ApiKey,
+                    Type = SecuritySchemeType.Http,
                     Scheme = "Bearer",
                     BearerFormat = "JWT",
                     Description = "Input your Bearer token in this format - Bearer {your token here} to access this API",

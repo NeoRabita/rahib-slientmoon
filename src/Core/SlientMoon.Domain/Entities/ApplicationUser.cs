@@ -16,6 +16,8 @@ namespace SlientMoon.Domain.Entities
 
         public string? RefreshTokenId { get; set; }
         public RefreshToken RefreshToken { get; set; }
+
+        public ICollection<UserTopic> UserTopics { get; set; } = new List<UserTopic>();
     }
 
 }

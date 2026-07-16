@@ -4,6 +4,7 @@ using SlientMoon.Infrastructure.Persistence.Contexts;
 using System.Threading.Tasks;
 using System.Threading;
 using System;
+using SlientMoon.Infrastructure.Persistence.Repositories;
 
 public class Uow : IUow
 {
@@ -11,14 +12,17 @@ public class Uow : IUow
     private IDbContextTransaction? _transaction;
 
     public IPomodoroRepository PomodoroRepository { get; }
+    public ITopicRepository TopicRepository { get; }
     public IUserRepository UserRepository { get; }
 
     public Uow(
         AppDbContext context,
         IPomodoroRepository pomodoroRepository,
-        IUserRepository userRepository)
+        IUserRepository userRepository,
+        ITopicRepository topicRepository)
     {
         _context = context;
+        TopicRepository = topicRepository;
         PomodoroRepository = pomodoroRepository;
         UserRepository = userRepository;
     }

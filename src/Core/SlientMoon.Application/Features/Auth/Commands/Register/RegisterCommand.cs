@@ -82,10 +82,9 @@ namespace SlientMoon.Application.Features.Auth.Commands.Register
             {
                 To = user.Email,
                 Subject = "SilentMoon - E-poçt Təsdiqləmə Kodu",
-                Body = otp // Consumer daxilində bu kodu götürüb qəşəng HTML şablonuna qoyacağıq
+                Body = otp
             };
 
-            // appsettings-də qurduğumuz routing key-ə uyğun olaraq göndəririk
             await _messagePublisher.PublishAsync(emailRequest, "email.otp.send");
 
 
