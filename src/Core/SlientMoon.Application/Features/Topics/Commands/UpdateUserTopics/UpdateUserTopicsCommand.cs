@@ -12,7 +12,6 @@ using System.Threading.Tasks;
 
 namespace SlientMoon.Application.Features.Topics.Commands.UpdateUserTopics
 {
-    // Cavab olaraq List<TopicDto> qaytaracağını bəyan edirik!
     public class UpdateUserTopicsCommand : ICommand<List<TopicDto>>
     {
         public string AuthorizationHeader { get; }
@@ -25,7 +24,6 @@ namespace SlientMoon.Application.Features.Topics.Commands.UpdateUserTopics
         }
     }
 
-    // Handler artıq "ICommandHandler<Command, Response>" interfeysindən miras alır
     public class UpdateUserTopicCommandHandler : ICommandHandler<UpdateUserTopicsCommand, List<TopicDto>>
     {
         private readonly IUow _uow;
@@ -42,10 +40,8 @@ namespace SlientMoon.Application.Features.Topics.Commands.UpdateUserTopics
             _jwtTokenService = jwtTokenService;
         }
 
-        // Qayıdış tipi indi tam olaraq Task<Result<List<TopicDto>>> oldu!
         public async Task<Result<List<TopicDto>>> Handle(UpdateUserTopicsCommand command, CancellationToken ct)
         {
-            // 1. Token Validasiyası
             if (string.IsNullOrEmpty(command.AuthorizationHeader) || !command.AuthorizationHeader.StartsWith("Bearer "))
             {
                 return UserErrors.Unauthorized();
@@ -73,7 +69,7 @@ namespace SlientMoon.Application.Features.Topics.Commands.UpdateUserTopics
 
             _logger.LogInformation("UserId {UserId} üçün mövzu yeniləmə prosesi başladı.", userId);
 
-            // 2. Mövzuların Validasiyası
+ 
             bool areTopicsValid = await _uow.TopicRepository.AreTopicsExistAsync(command.TopicIds);
 
             if (!areTopicsValid)
@@ -82,7 +78,6 @@ namespace SlientMoon.Application.Features.Topics.Commands.UpdateUserTopics
                 return Error.NotFound("Topic.NotFound", "Seçilmiş mövzulardan biri və ya bir neçəsi tapılmadı.");
             }
 
-            // 3. Köhnə əlaqələrin silinməsi
             var existingRelations = await _uow.TopicRepository.GetUserTopicRelationsAsync(userId);
 
             if (existingRelations.Any())
@@ -91,7 +86,6 @@ namespace SlientMoon.Application.Features.Topics.Commands.UpdateUserTopics
                 _uow.TopicRepository.RemoveUserTopic(existingRelations);
             }
 
-            // 4. Yeni əlaqələrin yazılması
             var newRelations = command.TopicIds.Select(topicId => new UserTopic
             {
                 UserId = userId,
@@ -100,11 +94,7 @@ namespace SlientMoon.Application.Features.Topics.Commands.UpdateUserTopics
 
             await _uow.TopicRepository.AddUserTopicsAsync(newRelations);
 
-            // 5. Bazaya yazılması
             await _uow.SaveChangesAsync(ct);
-
-            // 6. SWAGGER-İN İSTƏDİYİ DTO CAVABININ HAZIRLANMASI
-            // Bazaya uğurla yazıldıqdan sonra, yenilənmiş mövzuların detallarını çəkirik:
             var updatedTopics = await _uow.TopicRepository.GetAllTopicsAsync();
             var userTopicsList = updatedTopics
                 .Where(t => command.TopicIds.Contains(t.Id))
@@ -119,7 +109,6 @@ namespace SlientMoon.Application.Features.Topics.Commands.UpdateUserTopics
 
             _logger.LogInformation("UserId {UserId} üçün mövzular uğurla yeniləndi. Yeni mövzu sayı: {Count}", userId, userTopicsList.Count);
 
-            // Yenilənmiş siyahını "Result.Success(data)" daxilində geri qaytarırıq!
             return userTopicsList;
         }
     }
