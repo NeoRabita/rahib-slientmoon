@@ -14,17 +14,20 @@ public class Uow : IUow
     public IPomodoroRepository PomodoroRepository { get; }
     public ITopicRepository TopicRepository { get; }
     public IUserRepository UserRepository { get; }
+    public IReminderRepository ReminderRepository { get; }
 
     public Uow(
         AppDbContext context,
         IPomodoroRepository pomodoroRepository,
         IUserRepository userRepository,
-        ITopicRepository topicRepository)
+        ITopicRepository topicRepository,
+        IReminderRepository reminderRepository)
     {
         _context = context;
         TopicRepository = topicRepository;
         PomodoroRepository = pomodoroRepository;
         UserRepository = userRepository;
+        ReminderRepository = reminderRepository;
     }
 
     public async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
