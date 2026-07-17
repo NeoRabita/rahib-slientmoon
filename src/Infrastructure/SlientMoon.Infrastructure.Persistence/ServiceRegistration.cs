@@ -43,6 +43,7 @@ namespace SlientMoon.Infrastructure.Persistence
             services.AddScoped<IDapper, DapperClass>();
             services.AddScoped<IPomodoroRepository, PomodoroRepository>();
             services.AddScoped<IReminderRepository, ReminderRepository>();
+            services.AddScoped<ICurrentUserService, CurrentUserService>();
             services.AddScoped<ITopicRepository, TopicRepository>();
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IPasswordHasher, PasswordHasherService>();

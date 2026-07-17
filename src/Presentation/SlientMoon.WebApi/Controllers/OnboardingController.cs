@@ -59,9 +59,7 @@ namespace SlientMoon.WebApi.Controllers
         [HttpPost("me/reminders")]
         public async Task<IResult> CreateReminder([FromBody] CreateReminderRequest request)
         {
-            var authorizationHeader = HttpContext.Request.Headers.Authorization.ToString();
-
-            var command = new CreateReminderCommand(authorizationHeader, request);
+            var command = new CreateReminderCommand(request);
             var result = await Dispatcher.Send(command);
 
             return HandleResult(result);

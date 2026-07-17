@@ -7,6 +7,7 @@ using Microsoft.Extensions.Hosting;
 using SlientMoon.Application;
 using SlientMoon.Infrastructure.Messaging;
 using SlientMoon.Infrastructure.Persistence;
+using SlientMoon.Infrastructure.Persistence.Middleware;
 using SlientMoon.WebApi.Extensions;
 
 namespace SlientMoon.WebApi
@@ -50,6 +51,7 @@ namespace SlientMoon.WebApi
             app.UseRouting();
             app.UseSwaggerExtension(env, provider);
             app.UseAuthentication();
+            app.UseMiddleware<JwtUserMiddleware>();
             app.UseAuthorization();
             app.UseEndpoints(endpoints =>
             {
