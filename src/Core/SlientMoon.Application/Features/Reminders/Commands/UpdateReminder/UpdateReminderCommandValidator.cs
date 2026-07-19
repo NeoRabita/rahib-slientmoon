@@ -12,10 +12,7 @@ namespace SlientMoon.Application.Features.Reminders.Commands.UpdateReminder
                 .NotNull();
 
             RuleFor(r => r.Time)
-                .NotEmpty().WithMessage("{PropertyName} is required.")
-                .NotNull()
-                .Matches(@"^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$")
-                .WithMessage("{PropertyName} must be in HH:mm format (e.g., 07:30).");
+                .NotEmpty().WithMessage("{PropertyName} is required.");
 
             RuleFor(r => r.Label)
                 .NotEmpty().WithMessage("{PropertyName} is required.")

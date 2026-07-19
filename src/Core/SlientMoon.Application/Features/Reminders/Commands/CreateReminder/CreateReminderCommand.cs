@@ -13,16 +13,10 @@ namespace SlientMoon.Application.Features.Reminders.Commands.CreateReminder
 {
     public class CreateReminderCommand : ICommand<ReminderDto>
     {
-        public string Time { get; }
-        public List<int> DaysOfWeek { get; }
-        public string Label { get; }
+        public DateTime Time { get; set; }
+        public List<int> DaysOfWeek { get; set; }
+        public string Label { get; set; }
 
-        public CreateReminderCommand(CreateReminderRequest request)
-        {
-            Time = request.Time;
-            DaysOfWeek = request.DaysOfWeek;
-            Label = request.Label;
-        }
     }
 
     public class CreateReminderCommandHandler : ICommandHandler<CreateReminderCommand, ReminderDto>
@@ -70,7 +64,7 @@ namespace SlientMoon.Application.Features.Reminders.Commands.CreateReminder
             var reminderDto = new ReminderDto
             {
                 Id = reminder.Id,
-                Time = reminder.Time,
+                Time = reminder.Time.ToString("HH:mm"),
                 DaysOfWeek = reminder.DaysOfWeek,
                 Label = reminder.Label,
                 IsActive = reminder.IsActive,

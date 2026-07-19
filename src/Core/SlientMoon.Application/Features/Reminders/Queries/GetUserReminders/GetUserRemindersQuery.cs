@@ -13,69 +13,44 @@ namespace SlientMoon.Application.Features.Reminders.Queries.GetMyReminders
 {
     public class GetUserRemindersQuery : IQuery<List<ReminderDto>>
     {
-        public string AuthorizationHeader { get; }
 
-        public GetUserRemindersQuery(string authorizationHeader)
-        {
-            AuthorizationHeader = authorizationHeader;
-        }
     }
 
     public class GetUserRemindersQueryHandler : IQueryHandler<GetUserRemindersQuery, List<ReminderDto>>
     {
         private readonly IUow _uow;
         private readonly IAppLogger<GetUserRemindersQueryHandler> _logger;
-        private readonly IJwtTokenService _jwtTokenService;
+        private readonly ICurrentUserService _currentUserService;
 
         public GetUserRemindersQueryHandler(
             IUow uow,
             IAppLogger<GetUserRemindersQueryHandler> logger,
-            IJwtTokenService jwtTokenService)
+            ICurrentUserService currentUserService)
         {
             _uow = uow;
             _logger = logger;
-            _jwtTokenService = jwtTokenService;
+            _currentUserService = currentUserService;
         }
 
 
         public async Task<Result<List<ReminderDto>>> Handle(GetUserRemindersQuery query, CancellationToken ct)
         {
-            if (string.IsNullOrEmpty(query.AuthorizationHeader) || !query.AuthorizationHeader.StartsWith("Bearer "))
+            if (!_currentUserService.IsAuthenticated)
             {
+                _logger.LogWarning("Unauthorized attempt to fetch user topics.");
                 return UserErrors.Unauthorized();
             }
 
-            var rawToken = query.AuthorizationHeader.Replace("Bearer ", "").Trim();
-            var firstQuoteIndex = rawToken.IndexOf('"');
-            var token = firstQuoteIndex >= 0 ? rawToken.Substring(0, firstQuoteIndex) : rawToken;
-
-            string userId;
-
-
-            try
-            {
-                userId = _jwtTokenService.GetUserIdFromToken(token);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogWarning("Xatırlatmalar gətirilərkən token oxunmadı: {Error}", ex.Message);
-                return UserErrors.Unauthorized();
-            }
-
-            if (string.IsNullOrEmpty(userId))
-            {
-                return UserErrors.Unauthorized();
-            }
+            string userId = _currentUserService.UserId;
 
             _logger.LogInformation("UserId {UserId} üçün xatırlatma siyahısı sorğulanır.", userId);
 
-            
             var reminders = await _uow.ReminderRepository.GetUserRemindersAsync(userId);
 
             var reminderDtos = reminders.Select(r => new ReminderDto
             {
                 Id = r.Id,
-                Time = r.Time,
+                Time = r.Time.ToString("HH:mm"),
                 DaysOfWeek = r.DaysOfWeek,
                 Label = r.Label,
                 IsActive = r.IsActive,

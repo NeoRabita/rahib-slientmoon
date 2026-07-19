@@ -1,6 +1,5 @@
 ﻿using Application.Abstractions.Messaging;
 using SlientMoon.Application.Interfaces.Logging;
-using SlientMoon.Application.Interfaces.Repositories;
 using SlientMoon.Domain.Errors;
 using System;
 using System.Threading;
@@ -15,16 +14,13 @@ namespace SlientMoon.Application.Features.Auth.Commands.Logout
 
     public class LogoutCommandHandler : ICommandHandler<LogoutCommand, bool>
     {
-        private readonly IUserRepository _userRepository;
         private readonly IUow _uow;
         private readonly IAppLogger<LogoutCommandHandler> _logger;
 
         public LogoutCommandHandler(
-            IUserRepository userRepository,
             IUow uow,
             IAppLogger<LogoutCommandHandler> logger)
         {
-            _userRepository = userRepository;
             _uow = uow;
             _logger = logger;
         }
@@ -33,7 +29,7 @@ namespace SlientMoon.Application.Features.Auth.Commands.Logout
         {
             _logger.LogInformation("Logout started.");
 
-            var user = await _userRepository.GetByRefreshTokenAsync(command.RefreshToken);
+            var user = await _uow.UserRepository.GetByRefreshTokenAsync(command.RefreshToken);
 
             if(user is null)
             {

@@ -1,12 +1,10 @@
 ﻿using Application.Abstractions.Messaging;
 using SlientMoon.Application.DTOs.Account;
 using SlientMoon.Application.Interfaces.Logging;
-using SlientMoon.Application.Interfaces.Repositories;
 using SlientMoon.Application.Interfaces.Services;
 using SlientMoon.Domain.Errors;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows.Input;
 
 namespace SlientMoon.Application.Features.Auth.Commands.VerifyEmail
 {
@@ -18,20 +16,17 @@ namespace SlientMoon.Application.Features.Auth.Commands.VerifyEmail
 
     public class VerifyEmailCommandHandler : ICommandHandler<VerifyEmailCommand, AuthenticationResponse>
     {
-        private readonly IUserRepository _userRepository;
         private readonly IOtpService _otpService;
         private readonly IJwtTokenService _jwtTokenService;
         private readonly IUow _uow;
         private readonly IAppLogger<VerifyEmailCommandHandler> _logger;
 
         public VerifyEmailCommandHandler(
-            IUserRepository userRepository,
             IOtpService otpService,
             IJwtTokenService jwtTokenService,
             IUow uow,
             IAppLogger<VerifyEmailCommandHandler> logger)
         {
-            _userRepository = userRepository;
             _otpService = otpService;
             _jwtTokenService = jwtTokenService;
             _uow = uow;
@@ -42,7 +37,7 @@ namespace SlientMoon.Application.Features.Auth.Commands.VerifyEmail
         {
             _logger.LogInformation("VerifyEmail started. Email: {Email}", command.Email);
 
-            var user = await _userRepository.GetByEmailAsync(command.Email);
+            var user = await _uow.UserRepository.GetByEmailAsync(command.Email);
             if (user is null)
             {
                 _logger.LogWarning("VerifyEmail failed: user not found. Email: {Email}", command.Email);

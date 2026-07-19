@@ -11,60 +11,35 @@ using System.Threading.Tasks;
 
 namespace SlientMoon.Application.Features.Topics.Queries.GetUserTopics
 {
-    public class GetUserTopicsQuery : IQuery<List<TopicDto>>
-    {
-        public string AuthorizationHeader { get; set; }
-        public GetUserTopicsQuery(string authorizationHeader)
-        {
-            AuthorizationHeader = authorizationHeader;
-        }
-    }
+    public record GetUserTopicsQuery : IQuery<List<TopicDto>>;
 
     public class GetUserTopicsQueryHandler : IQueryHandler<GetUserTopicsQuery, List<TopicDto>>
     {
         private readonly IUow _uow;
         private readonly IAppLogger<GetUserTopicsQueryHandler> _logger;
-        private readonly IJwtTokenService _jwtTokenService;
+        private readonly ICurrentUserService _currentUserService;
 
-        public GetUserTopicsQueryHandler(IUow uow, IAppLogger<GetUserTopicsQueryHandler> logger, IJwtTokenService jwtTokenService)
+        public GetUserTopicsQueryHandler(IUow uow, IAppLogger<GetUserTopicsQueryHandler> logger, ICurrentUserService currentUserService)
         {
             _uow = uow;
             _logger = logger;
-            _jwtTokenService = jwtTokenService;
+            _currentUserService = currentUserService;
         }
 
         public async Task<Result<List<TopicDto>>> Handle(GetUserTopicsQuery query, CancellationToken ct)
         {
-            if (string.IsNullOrEmpty(query.AuthorizationHeader) || !query.AuthorizationHeader.StartsWith("Bearer "))
+
+            if (!_currentUserService.IsAuthenticated)
             {
+                _logger.LogWarning("Unauthorized attempt to fetch user topics.");
                 return UserErrors.Unauthorized();
             }
 
-            var rawToken = query.AuthorizationHeader.Replace("Bearer ", "").Trim();
-            var firstQuoteIndex = rawToken.IndexOf('"');
-            var token = firstQuoteIndex >= 0 ? rawToken.Substring(0, firstQuoteIndex) : rawToken;
+            string userId = _currentUserService.UserId;
 
-            string userId;
-            try
-            {
-                userId = _jwtTokenService.GetUserIdFromToken(token);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogWarning("Get user topics failed: Token format error. Details: {Error}", ex.Message);
-                return UserErrors.Unauthorized();
-            }
+            var userTopics = await _uow.TopicRepository.GetUserTopicsAsync(userId);
 
-            if (string.IsNullOrEmpty(userId))
-            {
-                return UserErrors.Unauthorized();
-            }
-
-            _logger.LogInformation("UserId {UserId} üçün seçilmiş mövzuların gətirilməsi sorğusu başladı.", userId);
-
-            var topics = await _uow.TopicRepository.GetUserTopicsAsync(userId);
-
-            var result = topics.Select(t => new TopicDto
+            var result = userTopics.Select(t => new TopicDto
             {
                 Id = t.Id,
                 Slug = t.Slug,
@@ -75,7 +50,7 @@ namespace SlientMoon.Application.Features.Topics.Queries.GetUserTopics
 
             _logger.LogInformation("UserId {UserId} üçün {Count} ədəd seçilmiş mövzu uğurla gətirildi.", userId, result.Count);
 
-            return result;
+            return Result.Success(result);
         }
     }
 }

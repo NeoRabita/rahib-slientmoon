@@ -23,28 +23,22 @@ namespace SlientMoon.Application.Features.Auth.Commands.Register
 
     public class RegisterCommandHandler : ICommandHandler<RegisterCommand, RegisterResponse>
     {
-        private readonly IUserRepository _userRepository;
         private readonly IPasswordHasher _passwordHasher;
         private readonly IOtpService _otpService;
-        private readonly IEmailService _emailService;
         private readonly IMessagePublisher _messagePublisher;
         private readonly IUow _uow;
         private readonly IAppLogger<RegisterCommandHandler> _logger;
         
         public RegisterCommandHandler(
-            IUserRepository userRepository,
             IPasswordHasher passwordHasher,
-            IEmailService emailService,
             IOtpService otpService,
             IMessagePublisher messagePublisher,
             IUow uow,
             IAppLogger<RegisterCommandHandler> logger)
         {
-            _userRepository = userRepository;
             _passwordHasher = passwordHasher;
             _otpService = otpService;
             _messagePublisher = messagePublisher;
-            _emailService = emailService;
             _uow = uow;
             _logger = logger;
         }
@@ -56,7 +50,7 @@ namespace SlientMoon.Application.Features.Auth.Commands.Register
             if (command == null)
                 return Error.NullValue;
 
-            var existingUser = await _userRepository.GetByEmailAsync(command.Email);
+            var existingUser = await _uow.UserRepository.GetByEmailAsync(command.Email);
             if(existingUser != null)
             {
                 _logger.LogWarning("Register failed: email already exists. Email: {Email}", command.Email);

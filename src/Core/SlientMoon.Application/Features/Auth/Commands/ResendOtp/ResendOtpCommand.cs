@@ -2,7 +2,6 @@
 using SlientMoon.Application.DTOs.Account;
 using SlientMoon.Application.DTOs.Email;
 using SlientMoon.Application.Interfaces.Logging;
-using SlientMoon.Application.Interfaces.Repositories;
 using SlientMoon.Application.Interfaces.Services;
 using SlientMoon.Domain.Errors;
 using System;
@@ -18,7 +17,6 @@ namespace SlientMoon.Application.Features.Auth.Commands.ResendOtp
 
     public class ResendOtpCommandHandler : ICommandHandler<ResendOtpCommand, ResendOtpResponse>
     {
-        private readonly IUserRepository _userRepository;
         private readonly IOtpService _otpService;
         private readonly IUow _uow;
         private readonly IMessagePublisher _messagePublisher;
@@ -27,14 +25,12 @@ namespace SlientMoon.Application.Features.Auth.Commands.ResendOtp
 
 
         public ResendOtpCommandHandler(
-            IUserRepository userRepository,
             IOtpService otpService,
             IEmailService emailService,
             IMessagePublisher messagePublisher,
             IUow uow,
             IAppLogger<ResendOtpCommandHandler> logger)
         {
-            _userRepository = userRepository;
             _otpService = otpService;
             _emailService = emailService;
             _messagePublisher = messagePublisher;
@@ -46,7 +42,7 @@ namespace SlientMoon.Application.Features.Auth.Commands.ResendOtp
         {
             _logger.LogInformation("ResendOtp started. Email: {Email}", command.Email);
 
-            var user = await _userRepository.GetByEmailAsync(command.Email);
+            var user = await _uow.UserRepository.GetByEmailAsync(command.Email);
             if (user is null)
             {
                 _logger.LogWarning("ResendOtp failed: user not found. Email: {Email}", command.Email);
