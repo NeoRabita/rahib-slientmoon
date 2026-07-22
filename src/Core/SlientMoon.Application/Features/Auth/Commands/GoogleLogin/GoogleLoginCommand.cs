@@ -1,11 +1,9 @@
 ﻿using Application.Abstractions.Messaging;
 using SlientMoon.Application.DTOs.Account;
 using SlientMoon.Application.Interfaces.Logging;
-using SlientMoon.Application.Interfaces.Repositories;
 using SlientMoon.Application.Interfaces.Services;
 using SlientMoon.Domain.Entities;
 using SlientMoon.Domain.Enums;
-using SlientMoon.Domain.Errors;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -20,20 +18,17 @@ namespace SlientMoon.Application.Features.Auth.Commands.GoogleLogin
     public class GoogleLoginCommandHandler : ICommandHandler<GoogleLoginCommand, AuthenticationResponse>
     {
         private readonly IGoogleAuthService _googleAuthService;
-        private readonly IUserRepository _userRepository;
         private readonly IJwtTokenService _jwtTokenService;
         private readonly IAppLogger<GoogleLoginCommandHandler> _logger;
         private readonly IUow _uow;
 
         public GoogleLoginCommandHandler(
             IGoogleAuthService googleAuthService,
-            IUserRepository userRepository,
             IAppLogger<GoogleLoginCommandHandler> logger,
             IJwtTokenService jwtTokenService,
             IUow uow)
         {
             _googleAuthService = googleAuthService;
-            _userRepository = userRepository;
             _logger = logger;
             _jwtTokenService = jwtTokenService;
             _uow = uow;
@@ -54,7 +49,7 @@ namespace SlientMoon.Application.Features.Auth.Commands.GoogleLogin
 
             var googleUser = googleResult.Value;
 
-            var user = await _userRepository.GetByEmailAsync(googleUser.Email);
+            var user = await _uow.UserRepository.GetByEmailAsync(googleUser.Email);
 
             if (user == null)
             {
@@ -69,7 +64,7 @@ namespace SlientMoon.Application.Features.Auth.Commands.GoogleLogin
                     CreatedAt = DateTime.UtcNow
                 };
 
-                await _userRepository.AddAsync(user);
+                await _uow.UserRepository.AddAsync(user);
             } else
             {
                 if (user.LoginType == LoginType.Normal)
@@ -93,7 +88,7 @@ namespace SlientMoon.Application.Features.Auth.Commands.GoogleLogin
                 Created = DateTime.UtcNow
             };
 
-            _userRepository.Update(user);
+            _uow.UserRepository.Update(user);
 
 
             var response = new AuthenticationResponse

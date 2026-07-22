@@ -11,13 +11,11 @@ namespace SlientMoon.Application.Features.Profile.Commands.UpdateProfile
 {
     public class UpdateProfileCommand : ICommand<UserDto>
     {
-        public string AuthorizationHeader { get; }
         public string Name { get; }
         public string AvatarUrl { get; }
 
-        public UpdateProfileCommand(string authorizationHeader, string name, string avatarUrl)
+        public UpdateProfileCommand(string name, string avatarUrl)
         {
-            AuthorizationHeader = authorizationHeader;
             Name = name;
             AvatarUrl = avatarUrl;
         }
@@ -27,42 +25,27 @@ namespace SlientMoon.Application.Features.Profile.Commands.UpdateProfile
     {
         private readonly IUow _uow;
         private readonly IAppLogger<UpdateProfileCommandHandler> _logger;
-        private readonly IJwtTokenService _jwtTokenService;
+        private readonly ICurrentUserService _currentUserService;
 
-        public UpdateProfileCommandHandler(IUow uow, IAppLogger<UpdateProfileCommandHandler> logger, IJwtTokenService jwtTokenService)
+        public UpdateProfileCommandHandler(IUow uow, IAppLogger<UpdateProfileCommandHandler> logger, ICurrentUserService currentUserService)
         {
             _uow = uow;
             _logger = logger;
-            _jwtTokenService = jwtTokenService;
+            _currentUserService = currentUserService;
         }
 
 
         public async Task<Result<UserDto>> Handle(UpdateProfileCommand command, CancellationToken ct)
         {
-            if(string.IsNullOrEmpty(command.AuthorizationHeader) || !command.AuthorizationHeader.StartsWith("Bearer "))
+            if (!_currentUserService.IsAuthenticated)
             {
+                _logger.LogWarning("Unauthorized attempt to fetch user topics.");
                 return UserErrors.Unauthorized();
             }
 
-            var rawToken = command.AuthorizationHeader.Replace("Bearer ", "").Trim();
-            var firstQuoteIndex = rawToken.IndexOf('"');
-            var token = firstQuoteIndex >= 0 ? rawToken.Substring(0, firstQuoteIndex) : rawToken;
 
-            string userId;
-            try
-            {
-                userId = _jwtTokenService.GetUserIdFromToken(token);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogWarning("Profile update failed: Token format error. Details: {Error}", ex.Message);
-                return UserErrors.Unauthorized();
-            }
-
-            if (string.IsNullOrEmpty(userId))
-            {
-                return UserErrors.Unauthorized();
-            }
+            string userId = _currentUserService.UserId;
+           
 
             _logger.LogInformation("Profile update started for UserId: {UserId}", userId);
 
@@ -83,7 +66,6 @@ namespace SlientMoon.Application.Features.Profile.Commands.UpdateProfile
             user.AvatarUrl = command.AvatarUrl;
 
             _uow.UserRepository.Update(user);
-            // Save changes cagirmagimi isteyirdi burda ai 
 
             _logger.LogInformation("Profile successfully updated for UserId: {UserId}", userId);
 

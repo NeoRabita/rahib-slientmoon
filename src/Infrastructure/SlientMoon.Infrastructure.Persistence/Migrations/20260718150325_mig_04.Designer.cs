@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Oracle.EntityFrameworkCore.Metadata;
 using SlientMoon.Infrastructure.Persistence.Contexts;
@@ -11,9 +12,11 @@ using SlientMoon.Infrastructure.Persistence.Contexts;
 namespace SlientMoon.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260718150325_mig_04")]
+    partial class mig_04
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -152,7 +155,7 @@ namespace SlientMoon.Infrastructure.Persistence.Migrations
                         {
                             Id = "6f9b17f4-d55c-4f7f-a123-1d54bdf19001",
                             ColorHex = "#8E97FD",
-                            CreatedAt = new DateTime(2026, 7, 22, 14, 24, 50, 526, DateTimeKind.Utc).AddTicks(485),
+                            CreatedAt = new DateTime(2026, 7, 18, 15, 3, 25, 151, DateTimeKind.Utc).AddTicks(2104),
                             IconKey = "leaf",
                             Slug = "reduce-stress",
                             Title = "Reduce Stress"
@@ -161,7 +164,7 @@ namespace SlientMoon.Infrastructure.Persistence.Migrations
                         {
                             Id = "6f9b17f4-d55c-4f7f-a123-1d54bdf19002",
                             ColorHex = "#FFC97E",
-                            CreatedAt = new DateTime(2026, 7, 22, 14, 24, 50, 526, DateTimeKind.Utc).AddTicks(492),
+                            CreatedAt = new DateTime(2026, 7, 18, 15, 3, 25, 151, DateTimeKind.Utc).AddTicks(2112),
                             IconKey = "moon",
                             Slug = "improve-sleep",
                             Title = "Improve Sleep"

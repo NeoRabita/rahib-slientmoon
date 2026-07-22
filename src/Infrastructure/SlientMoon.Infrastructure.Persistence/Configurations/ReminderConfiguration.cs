@@ -19,8 +19,7 @@ namespace SlientMoon.Infrastructure.Persistence.Configurations
                 .IsRequired();
 
             builder.Property(r => r.Time)
-                .IsRequired()
-                .HasMaxLength(5);
+    .IsRequired();
 
             builder.Property(r => r.Label)
                 .IsRequired()

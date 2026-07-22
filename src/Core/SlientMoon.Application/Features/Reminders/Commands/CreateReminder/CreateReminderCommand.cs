@@ -13,77 +13,50 @@ namespace SlientMoon.Application.Features.Reminders.Commands.CreateReminder
 {
     public class CreateReminderCommand : ICommand<ReminderDto>
     {
-        public string AuthorizationHeader { get; }
-        public string Time { get; }
-        public List<int> DaysOfWeek { get; }
-        public string Label { get; }
+        public DateTime Time { get; set; }
+        public List<int> DaysOfWeek { get; set; }
+        public string Label { get; set; }
 
-        public CreateReminderCommand(string authorizationHeader, CreateReminderRequest request)
-        {
-            AuthorizationHeader = authorizationHeader;
-            Time = request.Time;
-            DaysOfWeek = request.DaysOfWeek;
-            Label = request.Label;
-        }
     }
 
     public class CreateReminderCommandHandler : ICommandHandler<CreateReminderCommand, ReminderDto>
     {
         private readonly IUow _uow;
         private readonly IAppLogger<CreateReminderCommandHandler> _logger;
-        private readonly IJwtTokenService _jwtTokenService;
+        private readonly ICurrentUserService _currentUserService;
+        private readonly IDateTimeService _dateTimeService;
 
         public CreateReminderCommandHandler(
             IUow uow,
             IAppLogger<CreateReminderCommandHandler> logger,
-            IJwtTokenService jwtTokenService)
+            ICurrentUserService currentUserService,
+            IDateTimeService dateTimeService)
         {
             _uow = uow;
             _logger = logger;
-            _jwtTokenService = jwtTokenService;
+            _currentUserService = currentUserService;
+            _dateTimeService = dateTimeService;
         }
 
         public async Task<Result<ReminderDto>> Handle(CreateReminderCommand command, CancellationToken ct)
         {
-            // her defe validasiya edirem bunu ayri bir funksiyaya cixardim? 
-
-            if (string.IsNullOrEmpty(command.AuthorizationHeader) || !command.AuthorizationHeader.StartsWith("Bearer "))
+            if (!_currentUserService.IsAuthenticated)
             {
+                _logger.LogWarning("Unauthorized attempt to create a reminder.");
                 return UserErrors.Unauthorized();
             }
 
-            var rawToken = command.AuthorizationHeader.Replace("Bearer ", "").Trim();
-            var firstQuoteIndex = rawToken.IndexOf('"');
-            var token = firstQuoteIndex >= 0 ? rawToken.Substring(0, firstQuoteIndex) : rawToken;
+            _logger.LogInformation("Creating a new reminder for UserId: {UserId}", _currentUserService.UserId);
 
-            string userId;
-            try
-            {
-                userId = _jwtTokenService.GetUserIdFromToken(token);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogWarning("Xatırlatma yaradılarkən token oxunmadı: {Error}", ex.Message);
-                return UserErrors.Unauthorized();
-            }
-
-            if (string.IsNullOrEmpty(userId))
-            {
-                return UserErrors.Unauthorized();
-            }
-
-            _logger.LogInformation("UserId {UserId} üçün yeni xatırlatma yaradılır.", userId);
-
-            // 2. Yeni Reminder entity-sinin formalaşdırılması
             var reminder = new Reminder
             {
-                Id = Guid.NewGuid().ToString(), 
-                UserId = userId,
+                Id = Guid.NewGuid().ToString(),
+                UserId = _currentUserService.UserId!,
                 Time = command.Time,
                 DaysOfWeek = command.DaysOfWeek,
                 Label = command.Label,
                 IsActive = true,
-                CreatedAt = DateTime.UtcNow
+                CreatedAt = _dateTimeService.NowUtc
             };
 
             await _uow.ReminderRepository.AddReminderAsync(reminder);
@@ -91,7 +64,7 @@ namespace SlientMoon.Application.Features.Reminders.Commands.CreateReminder
             var reminderDto = new ReminderDto
             {
                 Id = reminder.Id,
-                Time = reminder.Time,
+                Time = reminder.Time.ToString("HH:mm"),
                 DaysOfWeek = reminder.DaysOfWeek,
                 Label = reminder.Label,
                 IsActive = reminder.IsActive,

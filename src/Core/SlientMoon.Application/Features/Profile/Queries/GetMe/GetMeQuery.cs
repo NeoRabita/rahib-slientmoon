@@ -11,70 +11,35 @@ namespace SlientMoon.Application.Features.Profile.Queries.GetMe
 {
     public class GetMeQuery : IQuery<UserDto>
     {
-        public string AuthorizationHeader { get; set; }
-
-        public GetMeQuery(string authorizationHeader)
-        {
-            AuthorizationHeader = authorizationHeader;
-        }
     }
 
     public class GetMeQueryHandler : IQueryHandler<GetMeQuery, UserDto>
     {
         private readonly IUow _uow;
         private readonly IAppLogger<GetMeQueryHandler> _logger;
-        private readonly IJwtTokenService _jwtTokenService;
+        private readonly ICurrentUserService _currentUserService;
 
-        public GetMeQueryHandler(IUow uow, IAppLogger<GetMeQueryHandler> logger, IJwtTokenService jwtTokenService)
+        public GetMeQueryHandler(IUow uow, IAppLogger<GetMeQueryHandler> logger, ICurrentUserService currentUserService)
         {
             _uow = uow;
             _logger = logger;
-            _jwtTokenService = jwtTokenService;
+            _currentUserService = currentUserService;
         }
 
 
         public async Task<Result<UserDto>> Handle(GetMeQuery query, CancellationToken ct)
         {
-            if (string.IsNullOrEmpty(query.AuthorizationHeader) || !query.AuthorizationHeader.StartsWith("Bearer "))
+            if (!_currentUserService.IsAuthenticated)
             {
+                _logger.LogWarning("Unauthorized attempt to fetch user topics.");
                 return UserErrors.Unauthorized();
             }
 
-            // 1. "Bearer " sözünü silirik
-            var rawToken = query.AuthorizationHeader.Replace("Bearer ", "").Trim();
-
-            // 2. Əgər istifadəçi bütöv JSON yapışdırıbsa, tokenin bitdiyi dırnaq işarəsini (") tapırıq
-            // və yalnız dırnağa qədər olan saf JWT token hissəsini kəsib götürürük!
-            var firstQuoteIndex = rawToken.IndexOf('"');
-            var token = firstQuoteIndex >= 0 ? rawToken.Substring(0, firstQuoteIndex) : rawToken;
-
-            string userId;
-            try
-            {
-                // 3. Artıq bura 100% təmizlənmiş token gedir
-                userId = _jwtTokenService.GetUserIdFromToken(token);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogWarning("Token oxunarkən format xətası baş verdi. Token zədəlidir.");
-                return UserErrors.Unauthorized();
-            }
-
-            if (string.IsNullOrEmpty(userId))
-            {
-                return UserErrors.Unauthorized();
-            }
+            string userId = _currentUserService.UserId;
 
             _logger.LogInformation("GetMe started. UserId: {UserId}", userId);
 
             var user = await _uow.UserRepository.GetByIdAsync(userId);
-
-            if (user == null)
-            {
-                _logger.LogWarning("GetMe failed: user not found. UserId: {UserId}", userId);
-                Guid.TryParse(userId, out Guid parsedGuid);
-                return UserErrors.NotFound(parsedGuid);
-            }
 
             _logger.LogInformation("GetMe done. UserId: {UserId}", userId);
 

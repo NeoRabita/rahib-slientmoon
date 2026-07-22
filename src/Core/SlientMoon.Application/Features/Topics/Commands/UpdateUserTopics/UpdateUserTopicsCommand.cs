@@ -14,12 +14,10 @@ namespace SlientMoon.Application.Features.Topics.Commands.UpdateUserTopics
 {
     public class UpdateUserTopicsCommand : ICommand<List<TopicDto>>
     {
-        public string AuthorizationHeader { get; }
         public List<string> TopicIds { get; }
 
-        public UpdateUserTopicsCommand(string authorizationHeader, List<string> topicIds)
+        public UpdateUserTopicsCommand(List<string> topicIds)
         {
-            AuthorizationHeader = authorizationHeader;
             TopicIds = topicIds;
         }
     }
@@ -28,48 +26,25 @@ namespace SlientMoon.Application.Features.Topics.Commands.UpdateUserTopics
     {
         private readonly IUow _uow;
         private readonly IAppLogger<UpdateUserTopicCommandHandler> _logger;
-        private readonly IJwtTokenService _jwtTokenService;
+        private readonly ICurrentUserService _currentUserService;
 
         public UpdateUserTopicCommandHandler(
             IUow uow,
             IAppLogger<UpdateUserTopicCommandHandler> logger,
-            IJwtTokenService jwtTokenService)
+            ICurrentUserService currentUserService)
         {
             _uow = uow;
             _logger = logger;
-            _jwtTokenService = jwtTokenService;
+            _currentUserService = currentUserService;
         }
 
         public async Task<Result<List<TopicDto>>> Handle(UpdateUserTopicsCommand command, CancellationToken ct)
         {
-            if (string.IsNullOrEmpty(command.AuthorizationHeader) || !command.AuthorizationHeader.StartsWith("Bearer "))
-            {
-                return UserErrors.Unauthorized();
-            }
 
-            var rawToken = command.AuthorizationHeader.Replace("Bearer ", "").Trim();
-            var firstQuoteIndex = rawToken.IndexOf('"');
-            var token = firstQuoteIndex >= 0 ? rawToken.Substring(0, firstQuoteIndex) : rawToken;
-
-            string userId;
-            try
-            {
-                userId = _jwtTokenService.GetUserIdFromToken(token);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogWarning("Mövzu yeniləmə uğursuz oldu: Token format xətası. Ətraflı: {Error}", ex.Message);
-                return UserErrors.Unauthorized();
-            }
-
-            if (string.IsNullOrEmpty(userId))
-            {
-                return UserErrors.Unauthorized();
-            }
+            string userId = _currentUserService.UserId;
 
             _logger.LogInformation("UserId {UserId} üçün mövzu yeniləmə prosesi başladı.", userId);
 
- 
             bool areTopicsValid = await _uow.TopicRepository.AreTopicsExistAsync(command.TopicIds);
 
             if (!areTopicsValid)
@@ -79,22 +54,34 @@ namespace SlientMoon.Application.Features.Topics.Commands.UpdateUserTopics
             }
 
             var existingRelations = await _uow.TopicRepository.GetUserTopicRelationsAsync(userId);
+            var existingTopicIds = existingRelations.Select(r => r.TopicId).ToList();
 
-            if (existingRelations.Any())
+            var relationsToRemove = existingRelations
+                .Where(r => !command.TopicIds.Contains(r.TopicId))
+                .ToList();
+
+            var topicIdsToAdd = command.TopicIds
+                .Where(id => !existingTopicIds.Contains(id))
+                .ToList();
+
+            if (relationsToRemove.Any())
             {
-                _logger.LogInformation("UserId {UserId} üçün {Count} ədəd köhnə mövzu əlaqəsi silinir.", userId, existingRelations.Count);
-                _uow.TopicRepository.RemoveUserTopic(existingRelations);
+                _logger.LogInformation("Removing {Count} obsolete topic relations for UserId: {UserId}", relationsToRemove.Count, userId);
+                _uow.TopicRepository.RemoveUserTopic(relationsToRemove);
             }
 
-            var newRelations = command.TopicIds.Select(topicId => new UserTopic
+            if (topicIdsToAdd.Any())
             {
-                UserId = userId,
-                TopicId = topicId
-            }).ToList();
+                _logger.LogInformation("Adding {Count} new topic relations for UserId: {UserId}", topicIdsToAdd.Count, userId);
+                var newRelations = topicIdsToAdd.Select(topicId => new UserTopic
+                {
+                    UserId = userId,
+                    TopicId = topicId
+                }).ToList();
 
-            await _uow.TopicRepository.AddUserTopicsAsync(newRelations);
+                await _uow.TopicRepository.AddUserTopicsAsync(newRelations);
+            }
 
-            await _uow.SaveChangesAsync(ct);
             var updatedTopics = await _uow.TopicRepository.GetAllTopicsAsync();
             var userTopicsList = updatedTopics
                 .Where(t => command.TopicIds.Contains(t.Id))
@@ -107,7 +94,7 @@ namespace SlientMoon.Application.Features.Topics.Commands.UpdateUserTopics
                     IconKey = t.IconKey
                 }).ToList();
 
-            _logger.LogInformation("UserId {UserId} üçün mövzular uğurla yeniləndi. Yeni mövzu sayı: {Count}", userId, userTopicsList.Count);
+            _logger.LogInformation("Topics successfully updated for UserId: {UserId}. Total topics: {Count}", userId, userTopicsList.Count);
 
             return userTopicsList;
         }

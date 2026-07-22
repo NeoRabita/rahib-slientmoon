@@ -1,7 +1,6 @@
 ﻿using Application.Abstractions.Messaging;
 using SlientMoon.Application.DTOs.Account;
 using SlientMoon.Application.Interfaces.Logging;
-using SlientMoon.Application.Interfaces.Repositories;
 using SlientMoon.Application.Interfaces.Services;
 using SlientMoon.Domain.Entities;
 using SlientMoon.Domain.Errors;
@@ -19,20 +18,17 @@ namespace SlientMoon.Application.Features.Auth.Commands.Login
 
     public class LoginCommandHandler : ICommandHandler<LoginCommand, AuthenticationResponse>
     {
-        private readonly IUserRepository _userRepository;
         private readonly IPasswordHasher _passwordHasher;
         private readonly IJwtTokenService _jwtTokenService;
         private readonly IUow _uow;
         private readonly IAppLogger<LoginCommandHandler> _logger;
 
         public LoginCommandHandler(
-            IUserRepository userRepository,
             IPasswordHasher passwordHasher,
             IJwtTokenService jwtTokenService,
             IUow uow,
             IAppLogger<LoginCommandHandler> logger)
         {
-            _userRepository = userRepository;
             _passwordHasher = passwordHasher;
             _jwtTokenService = jwtTokenService;
             _uow = uow;
@@ -43,7 +39,7 @@ namespace SlientMoon.Application.Features.Auth.Commands.Login
         {
             _logger.LogInformation("Login started. Email: {Email}", command.Email);
 
-            var user = await _userRepository.GetByEmailAsync(command.Email);
+            var user = await _uow.UserRepository.GetByEmailAsync(command.Email);
             
             if(user is null)
             {

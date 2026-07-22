@@ -11,12 +11,10 @@ namespace SlientMoon.Application.Features.Reminders.Commands.DeleteReminder
     public class DeleteReminderCommand : ICommand<bool>
     {
         public string Id { get; }
-        public string AuthorizationHeader { get; }
 
-        public DeleteReminderCommand(string id, string authorizationHeader)
+        public DeleteReminderCommand(string id)
         {
             Id = id;
-            AuthorizationHeader = authorizationHeader;
         }
     }
 
@@ -24,44 +22,27 @@ namespace SlientMoon.Application.Features.Reminders.Commands.DeleteReminder
     {
         private readonly IUow _uow;
         private readonly IAppLogger<DeleteReminderCommandHandler> _logger;
-        private readonly IJwtTokenService _jwtTokenService;
+        private readonly ICurrentUserService _currentUserService;
 
         public DeleteReminderCommandHandler(
             IUow uow,
             IAppLogger<DeleteReminderCommandHandler> logger,
-            IJwtTokenService jwtTokenService)
+            ICurrentUserService currentUserService)
         {
             _uow = uow;
             _logger = logger;
-            _jwtTokenService = jwtTokenService;
+            _currentUserService = currentUserService;
         }
 
         public async Task<Result<bool>> Handle(DeleteReminderCommand command, CancellationToken cancellationToken)
         {
-            if (string.IsNullOrEmpty(command.AuthorizationHeader) || !command.AuthorizationHeader.StartsWith("Bearer "))
+            if (!_currentUserService.IsAuthenticated)
             {
+                _logger.LogWarning("Unauthorized attempt to fetch user topics.");
                 return UserErrors.Unauthorized();
             }
 
-            var rawToken = command.AuthorizationHeader.Replace("Bearer ", "").Trim();
-            var firstQuoteIndex = rawToken.IndexOf('"');
-            var token = firstQuoteIndex >= 0 ? rawToken.Substring(0, firstQuoteIndex) : rawToken;
-
-            string userId;
-            try
-            {
-                userId = _jwtTokenService.GetUserIdFromToken(token);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogWarning("Xatırlatma silinərkən token oxunmadı: {Error}", ex.Message);
-                return UserErrors.Unauthorized();
-            }
-
-            if (string.IsNullOrEmpty(userId))
-            {
-                return UserErrors.Unauthorized();
-            }
+            string userId = _currentUserService.UserId;
 
             var reminder = await _uow.ReminderRepository.GetByIdAndUserIdAsync(command.Id, userId);
 
