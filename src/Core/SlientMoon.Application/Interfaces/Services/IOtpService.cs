@@ -4,7 +4,7 @@ namespace SlientMoon.Application.Interfaces.Services
 {
     public interface IOtpService
     {
-        Task<string> GenerateOtpAsync(string userId);
+        Task<string> GenerateOtpAsync(string userId, string email);
 
         Task<Result> ValidateOtpAsync(string userId, string otp);
 

@@ -47,17 +47,8 @@ namespace SlientMoon.Application.Features.Auth.Commands.ForgotPassword
                 return "Şifrə sıfırlama kodu e-poçt ünvanınıza göndərildi.";
             }
 
-            var otp = await _otpService.GenerateOtpAsync(user.Id);
+            var otp = await _otpService.GenerateOtpAsync(user.Id, user.Email);
 
-            var emailRequest = new EmailRequest
-            {
-                To = user.Email,
-                Subject = "SilentMoon - Şifrə Sıfırlama Kodu",
-                Body = $"Şifrənizi sıfırlamaq üçün birdəfəlik kodunuz: {otp}. Bu kod 10 dəqiqə ərzində etibarlıdır."
-            };
-
-
-            await _messagePublisher.PublishAsync(emailRequest, "email.otp.send");
 
             _logger.LogInformation("Forgot password OTP successfully generated and queued for UserId: {UserId}", user.Id);
 

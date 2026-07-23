@@ -58,17 +58,8 @@ namespace SlientMoon.Application.Features.Auth.Commands.ResendOtp
 
             await _otpService.RemoveOtpAsync(user.Id);
 
-            var otp = await _otpService.GenerateOtpAsync(user.Id);
+            var otp = await _otpService.GenerateOtpAsync(user.Id, user.Email);
 
-            var emailRequest = new EmailRequest
-            {
-                To = command.Email,
-                Subject = "SilentMoon - Yeni E-poçt Təsdiqləmə Kodu",
-                Body = otp
-            };
-
-
-            _logger.LogInformation("ResendOtp successful. New OTP generated. UserId: {UserId}", user.Id);
 
             return new ResendOtpResponse
             {
