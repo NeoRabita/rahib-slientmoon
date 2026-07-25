@@ -1,5 +1,9 @@
 ﻿using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.Extensions.Options;
+using SlientMoon.Application.DTOs.Messages;
 using SlientMoon.Application.Interfaces.Services;
+using SlientMoon.Domain.Enums;
+using SlientMoon.Infrastructure.Persistence.Settings;
 using System;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -9,6 +13,8 @@ namespace SlientMoon.Infrastructure.Persistence.Services
     public class OtpService : IOtpService
     {
         private readonly IDistributedCache _cache;
+        private readonly IMessagePublisher _messagePublisher;
+        private readonly RabbitMqSettings _rabbitMqSettings;
 
         private const string KeyPrefix = "otp:";
 
@@ -16,12 +22,14 @@ namespace SlientMoon.Infrastructure.Persistence.Services
 
         private const int MaxAttempts = 5;
 
-        public OtpService(IDistributedCache cache)
+        public OtpService(IDistributedCache cache, IMessagePublisher messagePublisher, IOptions<APIAppSettings> apiSettings)
         {
             _cache = cache;
+            _messagePublisher = messagePublisher;
+            _rabbitMqSettings = apiSettings.Value.RabbitMq;
         }
 
-        public async Task<string> GenerateOtpAsync(string userId)
+        public async Task<string> GenerateOtpAsync(string userId, string email)
         {
             var otp = new Random().Next(100000, 999999).ToString();
 
@@ -40,6 +48,13 @@ namespace SlientMoon.Infrastructure.Persistence.Services
 
             var key = $"{KeyPrefix}{userId}";
             await _cache.SetStringAsync(key, JsonSerializer.Serialize(otpData), options);
+
+            await _messagePublisher.PublishAsync(new NotificationMessage
+            {
+                Type = NotificationType.Email,
+                To = email,
+                Body = otp,
+            }, _rabbitMqSettings.ConsumerQueue);
 
             return otp;
         }

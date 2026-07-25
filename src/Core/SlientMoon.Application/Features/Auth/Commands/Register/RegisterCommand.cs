@@ -70,16 +70,7 @@ namespace SlientMoon.Application.Features.Auth.Commands.Register
 
             await _uow.UserRepository.AddAsync(user);
 
-            var otp = await _otpService.GenerateOtpAsync(user.Id);
-
-            var emailRequest = new EmailRequest
-            {
-                To = user.Email,
-                Subject = "SilentMoon - E-poçt Təsdiqləmə Kodu",
-                Body = otp
-            };
-
-            await _messagePublisher.PublishAsync(emailRequest, "email.otp.send");
+            var otp = await _otpService.GenerateOtpAsync(user.Id, user.Email);
 
 
             _logger.LogInformation("Register successful. OTP generated. UserId: {UserId}", user.Id);

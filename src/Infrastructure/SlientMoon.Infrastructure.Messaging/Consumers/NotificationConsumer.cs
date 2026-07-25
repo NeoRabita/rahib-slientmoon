@@ -5,6 +5,7 @@ using Microsoft.Extensions.Options;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using SlientMoon.Application.DTOs.Email;
+using SlientMoon.Application.DTOs.Messages;
 using SlientMoon.Application.Interfaces.Services;
 using SlientMoon.Infrastructure.Persistence.Settings;
 using System.Text;
@@ -12,17 +13,17 @@ using System.Text.Json;
 
 namespace SlientMoon.Infrastructure.Messaging.Consumers
 {
-    public class EmailConsumer : BackgroundService
+    public class NotificationConsumer : BackgroundService
     {
         private readonly RabbitMqSettings _rabbitMq;
-        private readonly ILogger<EmailConsumer> _logger;
+        private readonly ILogger<NotificationConsumer> _logger;
         private readonly IServiceScopeFactory _scopeFactory;
         private IConnection? _connection;
         private IChannel? _channel;
 
-        public EmailConsumer(
+        public NotificationConsumer(
             IOptions<APIAppSettings> apiSettings,
-            ILogger<EmailConsumer> logger,
+            ILogger<NotificationConsumer> logger,
             IServiceScopeFactory scopeFactory)
         {
             _rabbitMq = apiSettings.Value.RabbitMq;
@@ -104,17 +105,25 @@ namespace SlientMoon.Infrastructure.Messaging.Consumers
                 {
                     _logger.LogInformation("RabbitMQ-dan yeni mesaj gəldi: {Message}", messageJson);
 
-                    var emailRequest = JsonSerializer.Deserialize<EmailRequest>(messageJson);
+                    var notificationMessage = JsonSerializer.Deserialize<NotificationMessage>(messageJson);
 
-                    if (emailRequest != null)
+                    if (notificationMessage != null)
                     {
                         using var scope = _scopeFactory.CreateScope();
 
-                        var emailService = scope.ServiceProvider.GetRequiredService<IEmailService>();
+                        var handlers = scope.ServiceProvider.GetServices<INotificationHandler>();
 
-                        await emailService.SendOtpEmailAsync(emailRequest.To, emailRequest.Body);
+                        var handler = handlers.FirstOrDefault(h => h.SupportedType == notificationMessage.Type);
 
-                        _logger.LogInformation("Mail uğurla istifadəçiyə göndərildi: {To}", emailRequest.To);
+                        if (handler != null)
+                        {
+                            await handler.HandleAsync(notificationMessage);
+                            _logger.LogInformation("[{Type}] bildirişi uğurla göndərildi: {To}", notificationMessage.Type, notificationMessage.To);
+                        }
+                        else
+                        {
+                            _logger.LogWarning("[{Type}] tipi üçün heç bir Handler tapılmadı!", notificationMessage.Type);
+                        }
                     }
 
                     await _channel.BasicAckAsync(deliveryTag: ea.DeliveryTag, multiple: false, cancellationToken: stoppingToken);
