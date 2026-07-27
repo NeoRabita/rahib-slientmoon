@@ -12,7 +12,6 @@ using System.Threading.Tasks;
 
 namespace SlientMoon.WebApi.Controllers
 {
-    [Route("api")]
     public class OnboardingController : BaseController
     {
         [HttpGet("topics")]
