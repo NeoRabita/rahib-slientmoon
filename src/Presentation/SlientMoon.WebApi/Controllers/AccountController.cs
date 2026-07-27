@@ -15,7 +15,6 @@ using System.Threading.Tasks;
 
 namespace SlientMoon.WebApi.Controllers
 {
-    [Route("api/auth")]
     [ValidateModel]
     public class AccountController : BaseController
     {

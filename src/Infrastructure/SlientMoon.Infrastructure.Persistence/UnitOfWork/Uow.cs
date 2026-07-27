@@ -15,16 +15,22 @@ public class Uow : IUow
     public ITopicRepository TopicRepository { get; }
     public IUserRepository UserRepository { get; }
     public IReminderRepository ReminderRepository { get; }
+    public ICourseRepository CourseRepository { get; }
+    public IDailyThoughtRepository DailyThoughtRepository { get; }
 
     public Uow(
         AppDbContext context,
         IPomodoroRepository pomodoroRepository,
         IUserRepository userRepository,
         ITopicRepository topicRepository,
+        ICourseRepository courseRepository,
+        IDailyThoughtRepository dailyThoughtRepository,
         IReminderRepository reminderRepository)
     {
         _context = context;
         TopicRepository = topicRepository;
+        CourseRepository = courseRepository;
+        DailyThoughtRepository = dailyThoughtRepository;
         PomodoroRepository = pomodoroRepository;
         UserRepository = userRepository;
         ReminderRepository = reminderRepository;

@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 
 namespace SlientMoon.WebApi.Controllers
 {
-    [Route("api/[controller]")]
     public class ProfileController : BaseController
     {
         [HttpGet("me")]

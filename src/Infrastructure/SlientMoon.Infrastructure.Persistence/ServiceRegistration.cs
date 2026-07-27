@@ -45,6 +45,8 @@ namespace SlientMoon.Infrastructure.Persistence
             services.AddScoped<IReminderRepository, ReminderRepository>();
             services.AddScoped<ICurrentUserService, CurrentUserService>();
             services.AddScoped<ITopicRepository, TopicRepository>();
+            services.AddScoped<ICourseRepository, CourseRepository>();
+            services.AddScoped<IDailyThoughtRepository, DailyThoughtRepository>();
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IPasswordHasher, PasswordHasherService>();
             services.AddScoped<IUow, Uow>();

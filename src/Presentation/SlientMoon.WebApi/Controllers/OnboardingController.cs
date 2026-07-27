@@ -12,7 +12,6 @@ using System.Threading.Tasks;
 
 namespace SlientMoon.WebApi.Controllers
 {
-    [Route("api")]
     public class OnboardingController : BaseController
     {
         [HttpGet("topics")]
@@ -55,7 +54,6 @@ namespace SlientMoon.WebApi.Controllers
             return HandleResult(result);
         }
 
-        // Burda nece olacaq result 
 
         [HttpPatch("me/reminders/{id}")]
         public async Task<IResult> UpdateReminder([FromRoute] string id, [FromBody] UpdateReminderRequest request)

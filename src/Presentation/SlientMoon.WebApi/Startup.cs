@@ -1,13 +1,18 @@
 using Asp.Versioning.ApiExplorer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using SlientMoon.Application;
+using SlientMoon.Application.Interfaces.Services;
 using SlientMoon.Infrastructure.Messaging;
 using SlientMoon.Infrastructure.Persistence;
+using SlientMoon.Infrastructure.Persistence.Contexts;
 using SlientMoon.Infrastructure.Persistence.Middleware;
+using SlientMoon.Infrastructure.Persistence.Seed;
 using SlientMoon.WebApi.Extensions;
 
 namespace SlientMoon.WebApi
@@ -20,8 +25,6 @@ namespace SlientMoon.WebApi
         {
             Configuration = configuration;
         }
-
-        // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
             services.DisableDefaultApiValidation();
@@ -35,9 +38,12 @@ namespace SlientMoon.WebApi
             services.AddLocalization();
             services.AddServiceExtension();
             services.EnableApiVersioning();
+            services.Configure<RouteOptions>(options =>
+            {
+                options.LowercaseUrls = true;
+            });
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IApiVersionDescriptionProvider provider)
         {
             if (env.IsDevelopment())
@@ -47,16 +53,41 @@ namespace SlientMoon.WebApi
 
             app.UseErrorHandling(env);
             app.UseLocalization();
-            app.UseHttpsRedirection();
+            //app.UseHttpsRedirection();
             app.UseRouting();
             app.UseSwaggerExtension(env, provider);
             app.UseAuthentication();
             app.UseMiddleware<JwtUserMiddleware>();
             app.UseAuthorization();
+
+            SeedDatabase(app);
+            
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
             });
+        }
+
+        private static void SeedDatabase(IApplicationBuilder app)
+        {
+            using (var scope = app.ApplicationServices.CreateScope())
+            {
+                var services = scope.ServiceProvider;
+                try
+                {
+                    var context = services.GetRequiredService<AppDbContext>();
+                    var dateTimeService = services.GetRequiredService<IDateTimeService>();
+
+                    // Async metodu sinxron çağırmaq üçün (və ya Configure-u async Task edə bilərsən)
+                    DbInitializer.SeedAsync(context, dateTimeService).GetAwaiter().GetResult();
+                }
+                catch (System.Exception ex)
+                {
+                    // Tətbiq ayağa qalxarkən seed xətası olsa loqlamaq üçün
+                    var logger = services.GetRequiredService<Microsoft.Extensions.Logging.ILogger<Startup>>();
+                    logger.LogError(ex, "Verilənlər bazasına Seed Data doldurularkən xəta baş verdi.");
+                }
+            }
         }
     }
 }
