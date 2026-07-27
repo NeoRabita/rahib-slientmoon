@@ -18,8 +18,8 @@ namespace SlientMoon.WebApi.Extensions
     {
         public static void UseSwaggerExtension(this IApplicationBuilder app, IWebHostEnvironment env, IApiVersionDescriptionProvider provider)
         {
-            if (env.IsDevelopment() || env.IsStaging())
-            {
+            //if (env.IsDevelopment() || env.IsStaging())
+            //{
                 var assemblyName = Assembly.GetExecutingAssembly().GetName().Name;
                 app.UseSwagger();
                 app.UseSwaggerUI(options =>
@@ -31,7 +31,7 @@ namespace SlientMoon.WebApi.Extensions
                             $"{assemblyName}_{description.GroupName.ToUpperInvariant()}");
                     }
                 });
-            }
+            //}
         }
 
 
