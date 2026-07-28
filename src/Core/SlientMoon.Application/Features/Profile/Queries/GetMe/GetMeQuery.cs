@@ -1,6 +1,7 @@
 ﻿using Application.Abstractions.Messaging;
 using SlientMoon.Application.DTOs.Account;
 using SlientMoon.Application.Interfaces.Logging;
+using SlientMoon.Application.Interfaces.Messaging;
 using SlientMoon.Application.Interfaces.Services;
 using SlientMoon.Domain.Errors;
 using System;
@@ -9,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace SlientMoon.Application.Features.Profile.Queries.GetMe
 {
-    public class GetMeQuery : IQuery<UserDto>
+    public class GetMeQuery : IQuery<UserDto>, IRequireAuth
     {
     }
 
@@ -29,12 +30,6 @@ namespace SlientMoon.Application.Features.Profile.Queries.GetMe
 
         public async Task<Result<UserDto>> Handle(GetMeQuery query, CancellationToken ct)
         {
-            if (!_currentUserService.IsAuthenticated)
-            {
-                _logger.LogWarning("Unauthorized attempt to fetch user topics.");
-                return UserErrors.Unauthorized();
-            }
-
             string userId = _currentUserService.UserId;
 
             _logger.LogInformation("GetMe started. UserId: {UserId}", userId);
