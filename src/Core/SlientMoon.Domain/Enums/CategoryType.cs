@@ -1,6 +1,6 @@
 ﻿namespace SlientMoon.Domain.Enums
 {
-    public enum CourseType
+    public enum CategoryType
     {
         Meditation = 1,
         Sleep = 2,

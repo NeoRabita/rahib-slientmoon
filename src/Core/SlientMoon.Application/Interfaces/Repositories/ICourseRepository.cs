@@ -9,5 +9,8 @@ namespace SlientMoon.Application.Interfaces.Repositories
     {
         // cancellationToken params
         public Task<List<Course>> GetHomeFeedCoursesAsync(CancellationToken cancellationToken = default);
+
+        public Task<Course?> GetByIdAsync(string id, CancellationToken cancellationToken = default);
     }
 }
+

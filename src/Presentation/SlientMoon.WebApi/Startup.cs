@@ -14,6 +14,7 @@ using SlientMoon.Infrastructure.Persistence.Contexts;
 using SlientMoon.Infrastructure.Persistence.Middleware;
 using SlientMoon.Infrastructure.Persistence.Seed;
 using SlientMoon.WebApi.Extensions;
+using System.Text.Json.Serialization;
 
 namespace SlientMoon.WebApi
 {
@@ -28,7 +29,11 @@ namespace SlientMoon.WebApi
         public void ConfigureServices(IServiceCollection services)
         {
             services.DisableDefaultApiValidation();
-            services.AddControllers();
+            services.AddControllers()
+                .AddJsonOptions(options =>
+                    {
+                        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+                    });
             services.AddHttpContextAccessor();
             services.AddApplicationLayer();
             services.AddPersistenceRegistration(Configuration);

@@ -1,4 +1,5 @@
-﻿using SlientMoon.Application.DTOs.Home;
+﻿using SlientMoon.Application.DTOs.Courses;
+using SlientMoon.Application.DTOs.Home;
 using SlientMoon.Domain.Entities;
 using System.Linq;
 
@@ -6,9 +7,9 @@ namespace SlientMoon.Application.Mappings
 {
     public static class HomeFeedMappingExtensions
     {
-        public static HomeCourseDto ToHomeCourseDto(this Course course)
+        public static CourseDto ToHomeCourseDto(this Course course)
         {
-            return new HomeCourseDto
+            return new CourseDto
             {
                 Id = course.Id,
                 Title = course.Title,

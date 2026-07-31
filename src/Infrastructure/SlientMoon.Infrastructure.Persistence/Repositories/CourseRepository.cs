@@ -17,6 +17,14 @@ namespace SlientMoon.Infrastructure.Persistence.Repositories
             _appDbContext = appDbContext;
         }
 
+        public async Task<Course> GetByIdAsync(string id, CancellationToken cancellationToken = default)
+        {
+            return await _appDbContext.Courses
+                .Include(c => c.CourseNarrators)
+                    .ThenInclude(cn => cn.Narrator)
+                .FirstOrDefaultAsync(c => c.Id == id, cancellationToken);
+        }
+
         public async Task<List<Course>> GetHomeFeedCoursesAsync(CancellationToken cancellationToken)
         {
             return await _appDbContext.Courses

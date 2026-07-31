@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Oracle.EntityFrameworkCore.Metadata;
 using SlientMoon.Infrastructure.Persistence.Contexts;
@@ -11,9 +12,11 @@ using SlientMoon.Infrastructure.Persistence.Contexts;
 namespace SlientMoon.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260729105900_category_updated")]
+    partial class category_updated
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -160,31 +163,6 @@ namespace SlientMoon.Infrastructure.Persistence.Migrations
                     b.ToTable("DailyThoughts");
                 });
 
-            modelBuilder.Entity("SlientMoon.Domain.Entities.Favorite", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("NVARCHAR2(450)");
-
-                    b.Property<string>("CourseId")
-                        .HasColumnType("NVARCHAR2(450)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("TIMESTAMP(7)");
-
-                    b.Property<string>("UserId")
-                        .HasColumnType("NVARCHAR2(450)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CourseId");
-
-                    b.HasIndex("UserId", "CourseId")
-                        .IsUnique()
-                        .HasFilter("\"UserId\" IS NOT NULL AND \"CourseId\" IS NOT NULL");
-
-                    b.ToTable("Favorites");
-                });
-
             modelBuilder.Entity("SlientMoon.Domain.Entities.Narrator", b =>
                 {
                     b.Property<string>("Id")
@@ -298,7 +276,7 @@ namespace SlientMoon.Infrastructure.Persistence.Migrations
                         {
                             Id = "6f9b17f4-d55c-4f7f-a123-1d54bdf19001",
                             ColorHex = "#8E97FD",
-                            CreatedAt = new DateTime(2026, 7, 29, 20, 47, 8, 735, DateTimeKind.Utc).AddTicks(2653),
+                            CreatedAt = new DateTime(2026, 7, 29, 10, 58, 59, 884, DateTimeKind.Utc).AddTicks(7820),
                             IconKey = "leaf",
                             Slug = "reduce-stress",
                             Title = "Reduce Stress"
@@ -307,7 +285,7 @@ namespace SlientMoon.Infrastructure.Persistence.Migrations
                         {
                             Id = "6f9b17f4-d55c-4f7f-a123-1d54bdf19002",
                             ColorHex = "#FFC97E",
-                            CreatedAt = new DateTime(2026, 7, 29, 20, 47, 8, 735, DateTimeKind.Utc).AddTicks(2660),
+                            CreatedAt = new DateTime(2026, 7, 29, 10, 58, 59, 884, DateTimeKind.Utc).AddTicks(7828),
                             IconKey = "moon",
                             Slug = "improve-sleep",
                             Title = "Improve Sleep"
@@ -375,23 +353,6 @@ namespace SlientMoon.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Cascade);
 
                     b.Navigation("Course");
-                });
-
-            modelBuilder.Entity("SlientMoon.Domain.Entities.Favorite", b =>
-                {
-                    b.HasOne("SlientMoon.Domain.Entities.Course", "Course")
-                        .WithMany()
-                        .HasForeignKey("CourseId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.HasOne("SlientMoon.Domain.Entities.ApplicationUser", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.Navigation("Course");
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("SlientMoon.Domain.Entities.Reminder", b =>
