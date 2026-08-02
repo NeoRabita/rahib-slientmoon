@@ -19,7 +19,7 @@ namespace SlientMoon.Infrastructure.Persistence.Middleware
         {
             var authHeader = context.Request.Headers["Authorization"].ToString();
 
-            if(!string.IsNullOrEmpty(authHeader) && authHeader.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
+            if (!string.IsNullOrEmpty(authHeader) && authHeader.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
             {
                 var rawToken = authHeader.Substring("Bearer ".Length).Trim();
                 var firstQuoteIndex = rawToken.IndexOf('"');

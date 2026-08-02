@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SlientMoon.Application.Features.Profile.Commands.UpdateProfile;
 using SlientMoon.Application.Features.Profile.Queries.GetMe;

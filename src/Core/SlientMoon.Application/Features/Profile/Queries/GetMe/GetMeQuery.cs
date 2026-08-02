@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace SlientMoon.Application.Features.Profile.Queries.GetMe
 {
-    public class GetMeQuery : IQuery<UserDto>, IRequireAuth
+    public class GetMeQuery : IQuery<UserDto>
     {
     }
 
@@ -30,6 +30,11 @@ namespace SlientMoon.Application.Features.Profile.Queries.GetMe
 
         public async Task<Result<UserDto>> Handle(GetMeQuery query, CancellationToken ct)
         {
+            if (!_currentUserService.IsAuthenticated || string.IsNullOrEmpty(_currentUserService.UserId))
+            {
+                return UserErrors.Unauthorized(); // və ya istədiyin Result statusu
+            }
+
             string userId = _currentUserService.UserId;
 
             _logger.LogInformation("GetMe started. UserId: {UserId}", userId);

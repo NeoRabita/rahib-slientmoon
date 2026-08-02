@@ -13,14 +13,14 @@ namespace SlientMoon.Infrastructure.Persistence.Contexts
         public DbSet<RefreshToken> RefreshTokens { get; set; }
         public DbSet<Topic> Topics { get; set; }
         public DbSet<UserTopic> UserTopics { get; set; }
-
         public DbSet<Reminder> Reminders { get; set; }
-
         public DbSet<Category> Categories { get; set; }
         public DbSet<Course> Courses { get; set; }
         public DbSet<Narrator> Narrators { get; set; }
         public DbSet<CourseNarrator> CourseNarrators { get; set; }
         public DbSet<DailyThought> DailyThoughts { get; set; }
+        public DbSet<Favorite> Favorites { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

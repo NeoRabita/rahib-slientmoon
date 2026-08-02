@@ -9,7 +9,7 @@ namespace SlientMoon.Domain.Entities
     {
         public string Title { get; set; }
         public string Subtitle { get; set; }
-        public CourseType Type { get; set; }
+        public CategoryType Type { get; set; }
         public string ImageUrl { get; set; } = string.Empty;
         public int DurationSec { get; set; }
         public bool IsFeatured { get; set; }
