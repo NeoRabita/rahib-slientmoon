@@ -4,11 +4,8 @@ using System.Threading.Tasks;
 
 namespace SlientMoon.Application.Interfaces.Repositories
 {
-    public interface IFavoriteRepository
+    public interface IFavoriteRepository : IGenericRepository<Favorite>
     {
-        IQueryable<Favorite> GetAllAsFavorites();
-        Task AddFavoriteAsync(Favorite favorite);
-        Task<Favorite?> GetByIdAsync(string id);
-        void RemoveFavorite(Favorite favorite);
+
     }
 }

@@ -57,7 +57,7 @@ namespace SlientMoon.Application.Features.Favorites.Commands.AddFavorite
                 return FavoriteErrors.CourseNotFound;
             }
 
-            bool alreadyExists = await _uow.FavoriteRepository.GetAllAsFavorites()
+            bool alreadyExists = await _uow.FavoriteRepository.GetQueryable()
                 .AnyAsync(f => f.UserId == userId && f.CourseId == command.CourseId, ct);
 
             if (alreadyExists)
@@ -73,7 +73,7 @@ namespace SlientMoon.Application.Features.Favorites.Commands.AddFavorite
                 CreatedAt = _dateTimeService.NowUtc
             };
 
-            await _uow.FavoriteRepository.AddFavoriteAsync(favorite);
+            await _uow.FavoriteRepository.AddAsync(favorite);
 
             _logger.LogInformation("Favorite added. UserId: {UserId}, CourseId: {CourseId}", userId, command.CourseId);
 

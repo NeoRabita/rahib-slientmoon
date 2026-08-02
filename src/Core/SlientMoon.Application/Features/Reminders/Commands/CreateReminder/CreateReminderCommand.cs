@@ -59,7 +59,7 @@ namespace SlientMoon.Application.Features.Reminders.Commands.CreateReminder
                 CreatedAt = _dateTimeService.NowUtc
             };
 
-            await _uow.ReminderRepository.AddReminderAsync(reminder);
+            await _uow.ReminderRepository.AddAsync(reminder);
 
             var reminderDto = new ReminderDto
             {

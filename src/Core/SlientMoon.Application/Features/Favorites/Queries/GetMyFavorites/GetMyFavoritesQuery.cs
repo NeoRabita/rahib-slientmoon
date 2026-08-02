@@ -63,7 +63,7 @@ namespace SlientMoon.Application.Features.Favorites.Queries.GetMyFavorites
             _logger.LogInformation("GetMyFavorites started. UserId: {UserId}, Page: {Page}, Limit: {Limit}, Type: {Type}",
                 userId, query.Page, query.Limit, query.Type?.ToString() ?? "All");
 
-            var favoritesQuery = _uow.FavoriteRepository.GetAllAsFavorites()
+            var favoritesQuery = _uow.FavoriteRepository.GetQueryable()
                 .Where(f => f.UserId == userId);
 
             

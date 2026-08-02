@@ -53,7 +53,7 @@ namespace SlientMoon.Application.Features.Reminders.Commands.DeleteReminder
 
             _logger.LogInformation("UserId {UserId} üçün Id-si {ReminderId} olan xatırlatma silinir.", userId, command.Id);
 
-            _uow.ReminderRepository.RemoveReminder(reminder);
+            _uow.ReminderRepository.Delete(reminder);
 
             return true;
         }

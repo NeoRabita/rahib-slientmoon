@@ -35,7 +35,7 @@ namespace SlientMoon.Application.Features.Categories.Queries.GetCategories
         {
             _logger.LogInformation("GetCategories started. Filter Type: {Type}", query.Type?.ToString() ?? "All");
 
-            var categoryQuery = _uow.CategoryRepository.GetAllAsQueryable();
+            var categoryQuery = _uow.CategoryRepository.GetQueryable();
 
             if (query.Type.HasValue)
             {

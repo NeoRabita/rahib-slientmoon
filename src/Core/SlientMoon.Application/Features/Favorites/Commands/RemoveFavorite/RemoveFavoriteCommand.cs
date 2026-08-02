@@ -54,7 +54,7 @@ namespace SlientMoon.Application.Features.Favorites.Commands.RemoveFavorite
                 return FavoriteErrors.Forbidden;
             }
 
-            _uow.FavoriteRepository.RemoveFavorite(favorite);
+            _uow.FavoriteRepository.Delete(favorite);
 
             _logger.LogInformation("Favorite removed. Id: {FavoriteId}, UserId: {UserId}", command.Id, userId);
 

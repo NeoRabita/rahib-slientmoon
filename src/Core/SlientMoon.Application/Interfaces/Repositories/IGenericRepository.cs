@@ -12,6 +12,8 @@ namespace SlientMoon.Application.Interfaces.Repositories
 
         Task<IEnumerable<T>> GetAllAsync(CancellationToken cancellationToken = default);
 
+        IQueryable<T> GetQueryable(CancellationToken cancellationToken = default);
+
         Task AddAsync(T entity, CancellationToken cancellationToken = default);
 
         Task AddRangeAsync(IEnumerable<T> entities, CancellationToken cancellationToken = default);

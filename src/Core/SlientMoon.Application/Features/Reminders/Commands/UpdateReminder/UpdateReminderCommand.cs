@@ -70,7 +70,7 @@ namespace SlientMoon.Application.Features.Reminders.Commands.UpdateReminder
                 reminder.Label = command.Label;
                 reminder.IsActive = command.IsActive;
 
-                _uow.ReminderRepository.UpdateReminderAsync(reminder);
+                _uow.ReminderRepository.Update(reminder);
 
                 var reminderDto = new ReminderDto
                 {
