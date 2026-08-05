@@ -44,12 +44,7 @@ namespace SlientMoon.Application.Features.Favorites.Commands.AddFavorite
 
         public async Task<Result<FavoriteDto>> Handle(AddFavoriteCommand command, CancellationToken ct)
         {
-            if (!_currentUserService.IsAuthenticated)
-            {
-                return UserErrors.Unauthorized();
-            }
-
-            string userId = _currentUserService.UserId;
+            string userId = _currentUserService.GetUser();
 
             var course = await _uow.CourseRepository.GetByIdAsync(command.CourseId);
             if (course == null)
@@ -88,7 +83,6 @@ namespace SlientMoon.Application.Features.Favorites.Commands.AddFavorite
                     Id = course.Id,
                     Title = course.Title,
                     Subtitle = course.Subtitle,
-                    Type = course.Type.ToString().ToLower(),
                     CategoryId = course.CategoryId,
                     ImageUrl = course.ImageUrl,
                     DurationSec = course.DurationSec,

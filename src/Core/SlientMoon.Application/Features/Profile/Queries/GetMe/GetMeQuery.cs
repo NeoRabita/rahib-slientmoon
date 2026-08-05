@@ -30,12 +30,7 @@ namespace SlientMoon.Application.Features.Profile.Queries.GetMe
 
         public async Task<Result<UserDto>> Handle(GetMeQuery query, CancellationToken ct)
         {
-            //if (!_currentUserService.IsAuthenticated || string.IsNullOrEmpty(_currentUserService.UserId))
-            //{
-            //    return UserErrors.Unauthorized();
-            //}
-
-            string userId = _currentUserService.UserId;
+            string userId = _currentUserService.GetUser();
 
             _logger.LogInformation("GetMe started. UserId: {UserId}", userId);
 

@@ -51,12 +51,6 @@ namespace SlientMoon.WebApi.Extensions
 
         public static void UseErrorHandling(this IApplicationBuilder app, IWebHostEnvironment env)
         {
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage();
-                return;
-            }
-
             app.UseExceptionHandler(handlerApp => handlerApp.Run(async context =>
             {
                 var exceptionFeature = context.Features.Get<IExceptionHandlerPathFeature>();

@@ -17,6 +17,8 @@ namespace SlientMoon.Infrastructure.Persistence.Repositories
         public override async Task<Course?> GetByIdAsync(string id, CancellationToken cancellationToken = default)
         {
             return await _dbSet
+                .Include(c => c.Category)
+                    .ThenInclude(cat => cat.CategoryType)
                 .Include(c => c.CourseNarrators)
                     .ThenInclude(cn => cn.Narrator)
                 .FirstOrDefaultAsync(c => c.Id == id, cancellationToken);
@@ -26,6 +28,8 @@ namespace SlientMoon.Infrastructure.Persistence.Repositories
         {
             return await _dbSet
                 .AsNoTracking()
+                .Include(c => c.Category)
+                    .ThenInclude(cat => cat.CategoryType)
                 .Include(c => c.CourseNarrators)
                     .ThenInclude(cn => cn.Narrator)
                 .ToListAsync(cancellationToken);

@@ -14,7 +14,7 @@ namespace SlientMoon.Application.Mappings
                 Id = course.Id,
                 Title = course.Title,
                 Subtitle = course.Subtitle,
-                Type = course.Type.ToString().ToLower(),
+                Type = course.Category?.CategoryType?.Slug?.ToLower() ?? string.Empty,
                 ImageUrl = course.ImageUrl,
                 DurationSec = course.DurationSec,
                 IsFeatured = course.IsFeatured,

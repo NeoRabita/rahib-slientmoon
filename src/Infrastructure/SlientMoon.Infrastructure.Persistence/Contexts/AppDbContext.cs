@@ -15,6 +15,7 @@ namespace SlientMoon.Infrastructure.Persistence.Contexts
         public DbSet<UserTopic> UserTopics { get; set; }
         public DbSet<Reminder> Reminders { get; set; }
         public DbSet<Category> Categories { get; set; }
+        public DbSet<CategoryType> CategoryTypes { get; set; }
         public DbSet<Course> Courses { get; set; }
         public DbSet<Narrator> Narrators { get; set; }
         public DbSet<CourseNarrator> CourseNarrators { get; set; }

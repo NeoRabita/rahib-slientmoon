@@ -48,13 +48,7 @@ namespace SlientMoon.Application.Features.Reminders.Commands.UpdateReminder
 
             public async Task<Result<ReminderDto>> Handle(UpdateReminderCommand command, CancellationToken cancellationToken)
             {
-                if (!_currentUserService.IsAuthenticated)
-                {
-                    _logger.LogWarning("Unauthorized attempt to fetch user topics.");
-                    return UserErrors.Unauthorized();
-                }
-
-                string userId = _currentUserService.UserId;
+                string userId = _currentUserService.GetUser();
 
                 var reminder = await _uow.ReminderRepository.GetByIdAndUserIdAsync(command.Id, userId);
 

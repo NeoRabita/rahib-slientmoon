@@ -41,7 +41,7 @@ namespace SlientMoon.Application.Features.Topics.Commands.UpdateUserTopics
         public async Task<Result<List<TopicDto>>> Handle(UpdateUserTopicsCommand command, CancellationToken ct)
         {
 
-            string userId = _currentUserService.UserId;
+            string userId = _currentUserService.GetUser();
 
             _logger.LogInformation("UserId {UserId} üçün mövzu yeniləmə prosesi başladı.", userId);
 

@@ -28,14 +28,7 @@ namespace SlientMoon.Application.Features.Topics.Queries.GetUserTopics
 
         public async Task<Result<List<TopicDto>>> Handle(GetUserTopicsQuery query, CancellationToken ct)
         {
-
-            if (!_currentUserService.IsAuthenticated)
-            {
-                _logger.LogWarning("Unauthorized attempt to fetch user topics.");
-                return UserErrors.Unauthorized();
-            }
-
-            string userId = _currentUserService.UserId;
+            string userId = _currentUserService.GetUser();
 
             var userTopics = await _uow.TopicRepository.GetUserTopicsAsync(userId);
 

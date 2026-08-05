@@ -2,7 +2,6 @@
 using Application.Abstractions.Messaging;
 using SlientMoon.Application.DTOs.Categories;
 using SlientMoon.Application.Interfaces.Logging;
-using SlientMoon.Domain.Enums;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -12,9 +11,9 @@ namespace SlientMoon.Application.Features.Categories.Queries.GetCategories
 {
     public class GetCategoriesQuery : IQuery<List<CategoryDto>>
     {
-        public CategoryType? Type { get; set; }
+        public string? Type { get; set; }
 
-        public GetCategoriesQuery(CategoryType? type = null)
+        public GetCategoriesQuery(string? type = null)
         {
             Type = type;
         }
@@ -37,9 +36,10 @@ namespace SlientMoon.Application.Features.Categories.Queries.GetCategories
 
             var categoryQuery = _uow.CategoryRepository.GetQueryable();
 
-            if (query.Type.HasValue)
+            if (!string.IsNullOrWhiteSpace(query.Type))
             {
-                categoryQuery = categoryQuery.Where(c => c.CategoryType == query.Type.Value);
+                var normalizedType = query.Type.Trim().ToLower();
+                categoryQuery = categoryQuery.Where(c => c.CategoryType.Slug.ToLower() == normalizedType);
             }
 
             var categories = await categoryQuery
@@ -49,7 +49,8 @@ namespace SlientMoon.Application.Features.Categories.Queries.GetCategories
                     Id = c.Id,
                     Slug = c.Slug,
                     Title = c.Name,
-                    Type = c.CategoryType.ToString().ToLower(),
+                    Type = c.CategoryType.Name,
+                    CategoryTypeId = c.CategoryTypeId,
                     IconUrl = c.IconUrl
                 })
                 .ToListAsync(ct);

@@ -44,20 +44,15 @@ namespace SlientMoon.Application.Features.Auth.Commands.ResetPassword
                 return UserErrors.InvalidCredentials;
             }
 
-            // 2. OTP xidməti vasitəsilə kodun doğruluğunu və vaxtını yoxlayırıq
-            // (Qeyd: OTP doğrulama metodu arxa fonda təhlükəsizlik üçün işlənmiş kodu silməlidir)
             var isOtpValid = await _otpService.ValidateOtpAsync(user.Id, command.Otp);
             if (isOtpValid.IsFailure)
             {
                 _logger.LogWarning("Reset password failed: Invalid or expired OTP. Email: {Email}", command.Email);
-                return UserErrors.InvalidCredentials; // Domain səviyyəsində uyğun xəta sinfi
+                return UserErrors.InvalidCredentials;
             }
 
-            // 3. Yeni şifrəni heşləyirik (Hash) və istifadəçiyə mənimsədirik
             user.PasswordHash = _passwordHasher.Hash(command.NewPassword);
 
-            // 🔒 Təhlükəsizlik üçün: Şifrə dəyişəndə mövcud Refresh Tokeni sıfırlayırıq ki, 
-            // digər cihazlardakı sessiyalar bağlansın.
             user.RefreshToken = null;
             user.RefreshTokenId = null;
 

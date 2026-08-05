@@ -35,13 +35,7 @@ namespace SlientMoon.Application.Features.Reminders.Queries.GetMyReminders
 
         public async Task<Result<List<ReminderDto>>> Handle(GetUserRemindersQuery query, CancellationToken ct)
         {
-            if (!_currentUserService.IsAuthenticated)
-            {
-                _logger.LogWarning("Unauthorized attempt to fetch user topics.");
-                return UserErrors.Unauthorized();
-            }
-
-            string userId = _currentUserService.UserId;
+            string userId = _currentUserService.GetUser();
 
             _logger.LogInformation("UserId {UserId} üçün xatırlatma siyahısı sorğulanır.", userId);
 

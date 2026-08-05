@@ -5,8 +5,6 @@ using SlientMoon.Application.DTOs.Courses;
 using SlientMoon.Application.DTOs.Favorites;
 using SlientMoon.Application.Interfaces.Logging;
 using SlientMoon.Application.Interfaces.Services;
-using SlientMoon.Domain.Enums;
-using SlientMoon.Domain.Errors;
 using System;
 using System.Linq;
 using System.Threading;
@@ -18,7 +16,7 @@ namespace SlientMoon.Application.Features.Favorites.Queries.GetMyFavorites
     {
         public int Page { get; set; } = 1;
         public int Limit { get; set; } = 20;
-        public CategoryType? Type { get; set; }
+        public string? Type { get; set; }
 
 
         public GetMyFavoritesQuery()
@@ -26,7 +24,7 @@ namespace SlientMoon.Application.Features.Favorites.Queries.GetMyFavorites
 
         }
 
-        public GetMyFavoritesQuery(int page = 1, int limit = 20, CategoryType? type = null)
+        public GetMyFavoritesQuery(int page = 1, int limit = 20, string? type = null)
         {
             Page = page < 1 ? 1 : page;
             Limit = limit < 1 ? 20 : limit;
@@ -53,12 +51,7 @@ namespace SlientMoon.Application.Features.Favorites.Queries.GetMyFavorites
 
         public async Task<Result<PagedResult<FavoriteDto>>> Handle(GetMyFavoritesQuery query, CancellationToken ct)
         {
-            if (!_currentUserService.IsAuthenticated)
-            {
-                return UserErrors.Unauthorized();
-            }
-
-            string userId = _currentUserService.UserId;
+            string userId = _currentUserService.GetUser();
 
             _logger.LogInformation("GetMyFavorites started. UserId: {UserId}, Page: {Page}, Limit: {Limit}, Type: {Type}",
                 userId, query.Page, query.Limit, query.Type?.ToString() ?? "All");
@@ -67,9 +60,10 @@ namespace SlientMoon.Application.Features.Favorites.Queries.GetMyFavorites
                 .Where(f => f.UserId == userId);
 
             
-            if (query.Type.HasValue)
+            if (!string.IsNullOrWhiteSpace(query.Type))
             {
-                favoritesQuery = favoritesQuery.Where(f => f.Course.Type == query.Type.Value);
+                var normalizedType = query.Type.Trim().ToLower();
+                favoritesQuery = favoritesQuery.Where(f => f.Course.Category.CategoryType.Slug.ToLower() == normalizedType);
             }
 
 
@@ -89,7 +83,6 @@ namespace SlientMoon.Application.Features.Favorites.Queries.GetMyFavorites
                         Id = f.Course.Id,
                         Title = f.Course.Title,
                         Subtitle = f.Course.Subtitle,
-                        Type = f.Course.Type.ToString().ToLower(),
                         CategoryId = f.Course.CategoryId,
                         ImageUrl = f.Course.ImageUrl,
                         DurationSec = f.Course.DurationSec,

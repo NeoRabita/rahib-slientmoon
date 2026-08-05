@@ -9,7 +9,7 @@ namespace SlientMoon.WebApi.Controllers
     public class CatalogController : BaseController
     {
         [HttpGet("categories")]
-        public async Task<IResult> GetCategories([FromQuery] CategoryType? type)
+        public async Task<IResult> GetCategories([FromQuery] string? type)
         {
             var result = await Dispatcher.Send(new GetCategoriesQuery(type));
             return HandleResult(result);
