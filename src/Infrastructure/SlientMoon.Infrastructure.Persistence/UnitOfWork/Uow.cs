@@ -1,15 +1,17 @@
 using Microsoft.EntityFrameworkCore.Storage;
 using SlientMoon.Application.Interfaces.Repositories;
 using SlientMoon.Infrastructure.Persistence.Contexts;
-using System.Threading.Tasks;
-using System.Threading;
-using System;
 using SlientMoon.Infrastructure.Persistence.Repositories;
+using System;
+using System.Collections.Concurrent;
+using System.Threading;
+using System.Threading.Tasks;
 
 public class Uow : IUow
 {
     private readonly AppDbContext _context;
     private IDbContextTransaction? _transaction;
+    private readonly ConcurrentDictionary<Type, object> _repositories = new();
 
     public IPomodoroRepository PomodoroRepository { get; }
     public ITopicRepository TopicRepository { get; }
@@ -40,6 +42,14 @@ public class Uow : IUow
         CategoryRepository = categoryRepository;
         ReminderRepository = reminderRepository;
         FavoriteRepository = favoriteRepository;
+    }
+
+    public IGenericRepository<T> GenericRepository<T>() where T : class
+    {
+        return (IGenericRepository<T>)_repositories.GetOrAdd(
+            typeof(T),
+            _ => new GenericRepository<T>(_context)
+        );
     }
 
     public async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)

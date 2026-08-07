@@ -5,6 +5,7 @@ using System;
 
 public interface IUow : IDisposable
 {
+    IGenericRepository<T> GenericRepository<T>() where T : class;
     IPomodoroRepository PomodoroRepository { get; }
     IUserRepository UserRepository { get; }
     ITopicRepository TopicRepository { get; }

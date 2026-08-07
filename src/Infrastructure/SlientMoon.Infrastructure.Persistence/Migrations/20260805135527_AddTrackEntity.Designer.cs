@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Oracle.EntityFrameworkCore.Metadata;
 using SlientMoon.Infrastructure.Persistence.Contexts;
@@ -11,9 +12,11 @@ using SlientMoon.Infrastructure.Persistence.Contexts;
 namespace SlientMoon.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260805135527_AddTrackEntity")]
+    partial class AddTrackEntity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -122,9 +125,6 @@ namespace SlientMoon.Infrastructure.Persistence.Migrations
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("TIMESTAMP(7)");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<int>("DurationSec")
                         .HasColumnType("NUMBER(10)");
@@ -327,7 +327,7 @@ namespace SlientMoon.Infrastructure.Persistence.Migrations
                         {
                             Id = "6f9b17f4-d55c-4f7f-a123-1d54bdf19001",
                             ColorHex = "#8E97FD",
-                            CreatedAt = new DateTime(2026, 8, 5, 15, 43, 19, 566, DateTimeKind.Utc).AddTicks(5762),
+                            CreatedAt = new DateTime(2026, 8, 5, 13, 55, 27, 215, DateTimeKind.Utc).AddTicks(9293),
                             IconKey = "leaf",
                             Slug = "reduce-stress",
                             Title = "Reduce Stress"
@@ -336,7 +336,7 @@ namespace SlientMoon.Infrastructure.Persistence.Migrations
                         {
                             Id = "6f9b17f4-d55c-4f7f-a123-1d54bdf19002",
                             ColorHex = "#FFC97E",
-                            CreatedAt = new DateTime(2026, 8, 5, 15, 43, 19, 566, DateTimeKind.Utc).AddTicks(5770),
+                            CreatedAt = new DateTime(2026, 8, 5, 13, 55, 27, 215, DateTimeKind.Utc).AddTicks(9301),
                             IconKey = "moon",
                             Slug = "improve-sleep",
                             Title = "Improve Sleep"
@@ -491,7 +491,7 @@ namespace SlientMoon.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("SlientMoon.Domain.Entities.Track", b =>
                 {
                     b.HasOne("SlientMoon.Domain.Entities.Course", "Course")
-                        .WithMany("Tracks")
+                        .WithMany()
                         .HasForeignKey("CourseId");
 
                     b.HasOne("SlientMoon.Domain.Entities.Narrator", "Narrator")
@@ -542,8 +542,6 @@ namespace SlientMoon.Infrastructure.Persistence.Migrations
                     b.Navigation("CourseNarrators");
 
                     b.Navigation("DailyThoughts");
-
-                    b.Navigation("Tracks");
                 });
 
             modelBuilder.Entity("SlientMoon.Domain.Entities.Narrator", b =>
