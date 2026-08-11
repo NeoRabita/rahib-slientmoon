@@ -60,7 +60,7 @@ namespace SlientMoon.Application.Features.Auth.Commands.ResetPassword
 
             _logger.LogInformation("Password successfully reset for UserId: {UserId}", user.Id);
 
-            return "Şifrəniz uğurla yeniləndi. Yeni şifrənizlə daxil ola bilərsiniz.";
+            return "Auth.PasswordResetSuccess";
         }
     }
 }

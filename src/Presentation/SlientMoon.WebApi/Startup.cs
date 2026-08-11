@@ -28,6 +28,17 @@ namespace SlientMoon.WebApi
         }
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddCors(options =>
+            {
+                options.AddPolicy("AllowAllForDev", builder =>
+                {
+                    builder
+                        .SetIsOriginAllowed(_ => true)
+                        .AllowAnyMethod()
+                        .AllowAnyHeader()
+                        .AllowCredentials();
+                });
+            });
             services.DisableDefaultApiValidation();
             services.AddControllers()
                 .AddJsonOptions(options =>
@@ -60,6 +71,7 @@ namespace SlientMoon.WebApi
             app.UseLocalization();
             //app.UseHttpsRedirection();
             app.UseRouting();
+            app.UseCors("AllowAllForDev");
             app.UseSwaggerExtension(env, provider);
             app.UseAuthentication();
             app.UseMiddleware<JwtUserMiddleware>();

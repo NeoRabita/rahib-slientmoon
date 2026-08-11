@@ -48,7 +48,7 @@ namespace SlientMoon.Application.Features.Courses.Queries.GetCourseById
             if (course is null)
             {
                 _logger.LogWarning("GetCourseById failed. Course not found: {CourseId}", query.Id);
-                return Result.Failure<CourseDto>(DomainErrors.NotFound(query.Id));
+                return CourseErrors.NotFound;
             }
 
             var narratorTypes = course.CourseNarrators

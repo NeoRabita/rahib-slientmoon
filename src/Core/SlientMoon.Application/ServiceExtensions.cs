@@ -1,5 +1,6 @@
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
+using SlientMoon.Application.Behaviours.Localization;
 using SlientMoon.Application.Interfaces.Messaging;
 using System.Reflection;
 
@@ -12,6 +13,7 @@ namespace SlientMoon.Application
             services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
             services.AddScoped<IDispatcher, Dispatcher>();
             services.AddCqrsHandlers(Assembly.GetExecutingAssembly());
+            services.AddScoped(typeof(IPipelineBehavior<,>), typeof(LocalizationBehavior<,>));
         }
     }
 }

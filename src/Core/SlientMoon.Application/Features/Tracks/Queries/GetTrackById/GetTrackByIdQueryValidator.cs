@@ -7,7 +7,7 @@ namespace SlientMoon.Application.Features.Tracks.Queries.GetTrackById
         public GetTrackByIdQueryValidator()
         {
             RuleFor(x => x.Id)
-                .NotEmpty().WithMessage("{PropertyName} is required.");
+                .NotEmpty();
         }
     }
 }

@@ -41,7 +41,7 @@ namespace SlientMoon.Application.Features.Favorites.Commands.RemoveFavorite
             var favorite = await _uow.FavoriteRepository.GetByIdAsync(command.Id);
             if (favorite == null)
             {
-                return FavoriteErrors.NotFound;
+                return CourseErrors.NotFound;
             }
 
             if(favorite.UserId != userId)

@@ -38,7 +38,7 @@ namespace SlientMoon.Application.Features.Courses.Queries.GetRelatedCourses
             if (currentCourse is null)
             {
                 _logger.LogWarning("GetRelatedCourses failed. Course not found: {CourseId}", query.Id);
-                return Result.Failure<List<CourseDto>>(DomainErrors.NotFound(query.Id));
+                return CourseErrors.NotFound;
             }
 
             var relatedCourses = await _uow.GenericRepository<Course>()

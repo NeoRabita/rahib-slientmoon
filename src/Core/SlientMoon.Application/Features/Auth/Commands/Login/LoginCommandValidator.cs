@@ -7,12 +7,12 @@ namespace SlientMoon.Application.Features.Auth.Commands.Login
         public LoginCommandValidator()
         {
             RuleFor(x => x.Email)
-                .NotEmpty().WithMessage("{PropertyName} is required.")
-                .EmailAddress().WithMessage("{PropertyName} must be a valid email address.");
+                .NotEmpty()
+                .EmailAddress();
 
             RuleFor(x => x.Password)
-                .NotEmpty().WithMessage("{PropertyName} is required.")
-                .MinimumLength(8).WithMessage("{PropertyName} must be at least 8 characters.");
+                .NotEmpty()
+                .MinimumLength(8);
         }
     }
 }

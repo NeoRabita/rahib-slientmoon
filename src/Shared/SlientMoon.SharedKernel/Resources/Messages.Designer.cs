@@ -19,7 +19,7 @@ namespace SlientMoon.SharedKernel.Resources {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "17.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "18.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     public class Messages {
@@ -57,6 +57,33 @@ namespace SlientMoon.SharedKernel.Resources {
             }
             set {
                 resourceCulture = value;
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Password reset code has been sent to your email address..
+        /// </summary>
+        public static string Auth_PasswordResetCodeSent {
+            get {
+                return ResourceManager.GetString("Auth.PasswordResetCodeSent", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Your password has been successfully reset. You can now log in with your new password..
+        /// </summary>
+        public static string Auth_PasswordResetSuccess {
+            get {
+                return ResourceManager.GetString("Auth.PasswordResetSuccess", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Course not found..
+        /// </summary>
+        public static string Course_NotFound {
+            get {
+                return ResourceManager.GetString("Course.NotFound", resourceCulture);
             }
         }
         
@@ -367,6 +394,24 @@ namespace SlientMoon.SharedKernel.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to This item is already in your favorites..
+        /// </summary>
+        public static string Favorites_AlreadyExists {
+            get {
+                return ResourceManager.GetString("Favorites.AlreadyExists", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to You do not have permission to perform this action..
+        /// </summary>
+        public static string Favorites_Forbidden {
+            get {
+                return ResourceManager.GetString("Favorites.Forbidden", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to &apos;{PropertyName}&apos; must be greater than or equal to {ComparisonValue}..
         /// </summary>
         public static string GreaterThanOrEqualValidator {
@@ -529,6 +574,33 @@ namespace SlientMoon.SharedKernel.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The confirmation code was not found or has expired. Please request a new code..
+        /// </summary>
+        public static string OtpErrors_InvalidOtp {
+            get {
+                return ResourceManager.GetString("OtpErrors.InvalidOtp", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The OTP code has expired..
+        /// </summary>
+        public static string OtpErrors_OtpNotFound {
+            get {
+                return ResourceManager.GetString("OtpErrors.OtpNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to You have exceeded the maximum number of attempts. Please request a new OTP..
+        /// </summary>
+        public static string OtpErrors_RateLimitExceeded {
+            get {
+                return ResourceManager.GetString("OtpErrors.RateLimitExceeded", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Password must contain at least one special character (@, #, $, %, etc.)..
         /// </summary>
         public static string PasswordMustCharacter {
@@ -619,6 +691,24 @@ namespace SlientMoon.SharedKernel.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Reminder not found..
+        /// </summary>
+        public static string Reminder_NotFound {
+            get {
+                return ResourceManager.GetString("Reminder.NotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Track not found..
+        /// </summary>
+        public static string Track_NotFound {
+            get {
+                return ResourceManager.GetString("Track.NotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The phone number or password is incorrect..
         /// </summary>
         public static string Users_CredentialsError {
@@ -628,11 +718,38 @@ namespace SlientMoon.SharedKernel.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to This email address has already been verified..
+        /// </summary>
+        public static string Users_EmailAlreadyVerified {
+            get {
+                return ResourceManager.GetString("Users.EmailAlreadyVerified", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The provided email address is already in use..
         /// </summary>
         public static string Users_EmailNotUnique {
             get {
                 return ResourceManager.GetString("Users.EmailNotUnique", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Email address is not verified. Please verify your account..
+        /// </summary>
+        public static string Users_EmailNotVerified {
+            get {
+                return ResourceManager.GetString("Users.EmailNotVerified", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Invalid email or password..
+        /// </summary>
+        public static string Users_InvalidCredentials {
+            get {
+                return ResourceManager.GetString("Users.InvalidCredentials", resourceCulture);
             }
         }
         
@@ -651,6 +768,15 @@ namespace SlientMoon.SharedKernel.Resources {
         public static string Users_NotFound {
             get {
                 return ResourceManager.GetString("Users.NotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The user with the specified email was not found..
+        /// </summary>
+        public static string Users_NotFoundByEmail {
+            get {
+                return ResourceManager.GetString("Users.NotFoundByEmail", resourceCulture);
             }
         }
         
@@ -687,6 +813,15 @@ namespace SlientMoon.SharedKernel.Resources {
         public static string Users_TooManySignUpAttempt {
             get {
                 return ResourceManager.GetString("Users.TooManySignUpAttempt", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to You are not authorized to perform this action..
+        /// </summary>
+        public static string Users_Unauthorized {
+            get {
+                return ResourceManager.GetString("Users.Unauthorized", resourceCulture);
             }
         }
         

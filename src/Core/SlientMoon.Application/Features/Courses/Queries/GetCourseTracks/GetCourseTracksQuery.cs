@@ -39,7 +39,7 @@ namespace SlientMoon.Application.Features.Courses.Queries.GetCourseTracks
             if (!courseExists)
             {
                 _logger.LogWarning("GetCourseTracks failed. Course not found: {CourseId}", query.CourseId);
-                return Result.Failure<List<CourseTrackDto>>(DomainErrors.NotFound(query.CourseId));
+                return CourseErrors.NotFound;
             }
 
             var tracksQuery = _uow.GenericRepository<Track>()

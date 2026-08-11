@@ -7,15 +7,15 @@ namespace SlientMoon.Application.Features.Auth.Commands.VerifyEmail
         public VerifyEmailCommandValidator()
         {
             RuleFor(x => x.Email)
-                .NotEmpty().WithMessage("{PropertyName} is required.")
+                .NotEmpty()
                 .NotNull()
-                .EmailAddress().WithMessage("{PropertyName} must be a valid email address.");
+                .EmailAddress();
 
             RuleFor(x => x.Otp)
-                .NotEmpty().WithMessage("{PropertyName} is required.")
+                .NotEmpty()
                 .NotNull()
-                .Length(6).WithMessage("{PropertyName} must be 6 characters.")
-                .Matches("^[0-9]{6}$").WithMessage("{PropertyName} must contain only digits.");
+                .Length(6)
+                .Matches("^[0-9]{6}$");
         }
     }
 }

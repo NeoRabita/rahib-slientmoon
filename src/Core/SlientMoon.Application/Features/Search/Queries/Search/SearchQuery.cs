@@ -14,7 +14,6 @@ namespace SlientMoon.Application.Features.Search.Queries.Search
 {
     public record SearchQuery(
         string Q,
-        string? Type = null,
         int Page = 1,
         int Limit = 20
         ) : IQuery<SearchResponseDto>
@@ -34,127 +33,103 @@ namespace SlientMoon.Application.Features.Search.Queries.Search
 
         public async Task<Result<SearchResponseDto>> Handle(SearchQuery query, CancellationToken ct)
         {
-            _logger.LogInformation("Universal search started. Query: {Q}, Type: {Type}", query.Q, query.Type);
+            _logger.LogInformation("Universal search started. Query: {Q}", query.Q);
 
             var searchTerm = query.Q.Trim().ToLower();
-            var searchType = query.Type?.Trim().ToLower();
-
             var searchResults = new List<SearchResultItemDto>();
 
-            if (ShouldSearch(searchType, "course", "meditation", "sleep", "music"))
+            var courses = await _uow.GenericRepository<Course>()
+                            .GetQueryable()
+                            .AsNoTracking()
+                            .Include(c => c.Category)
+                                .ThenInclude(cat => cat.CategoryType)
+                            .Include(c => c.CourseNarrators)
+                                .ThenInclude(cn => cn.Narrator)
+                            .Where(c => c.Title.ToLower().Contains(searchTerm) ||
+                                        (c.Subtitle != null && c.Subtitle.ToLower().Contains(searchTerm)) ||
+                                        (c.Description != null && c.Description.ToLower().Contains(searchTerm)))
+                            .ToListAsync(ct);
+
+            searchResults.AddRange(courses.Select(c => new SearchResultItemDto
             {
-                var coursesQuery = _uow.GenericRepository<Course>()
-                    .GetQueryable()
-                    .AsNoTracking()
-                    .Include(c => c.Category)
-                        .ThenInclude(cat => cat.CategoryType)
-                    .Include(c => c.CourseNarrators)
-                        .ThenInclude(cn => cn.Narrator)
-                    .Where(c => c.Title.ToLower().Contains(searchTerm) ||
-                                (c.Subtitle != null && c.Subtitle.ToLower().Contains(searchTerm)) ||
-                                (c.Description != null && c.Description.ToLower().Contains(searchTerm)));
+                Id = c.Id,
+                Title = c.Title,
+                Subtitle = c.Subtitle,
+                Type = c.Category?.CategoryType?.Slug?.ToLower(),
+                CategoryId = c.CategoryId,
+                ImageUrl = c.ImageUrl,
+                DurationSec = c.DurationSec,
+                IsFeatured = c.IsFeatured,
+                Narrators = c.CourseNarrators
+                    .Where(cn => cn.Narrator != null)
+                    .Select(cn => cn.Narrator!.Gender.ToString().ToLower())
+                    .Distinct()
+                    .ToList()
+            }));
 
-                if (!string.IsNullOrEmpty(searchType) && searchType != "course")
-                {
-                    coursesQuery = coursesQuery.Where(c => c.Category != null &&
-                                                           c.Category.CategoryType != null &&
-                                                           c.Category.CategoryType.Slug.ToLower() == searchType);
-                }
+            var categories = await _uow.GenericRepository<Category>()
+                .GetQueryable()
+                .AsNoTracking()
+                .Include(c => c.CategoryType)
+                .Where(c => c.Name.ToLower().Contains(searchTerm))
+                .ToListAsync(ct);
 
-                var courses = await coursesQuery.ToListAsync(ct);
-
-                searchResults.AddRange(courses.Select(c => new SearchResultItemDto
-                {
-                    Id = c.Id,
-                    Title = c.Title,
-                    Subtitle = c.Subtitle,
-                    Type = c.Category?.CategoryType?.Slug?.ToLower() ?? "course",
-                    CategoryId = c.CategoryId,
-                    ImageUrl = c.ImageUrl,
-                    DurationSec = c.DurationSec,
-                    IsFeatured = c.IsFeatured,
-                    Narrators = c.CourseNarrators
-                        .Where(cn => cn.Narrator != null)
-                        .Select(cn => cn.Narrator!.Gender.ToString().ToLower())
-                        .Distinct()
-                        .ToList()
-                }));
-            }
-
-            if (ShouldSearch(searchType, "category"))
+            searchResults.AddRange(categories.Select(c => new SearchResultItemDto
             {
-                var categories = await _uow.GenericRepository<Category>()
-                    .GetQueryable()
-                    .AsNoTracking()
-                    .Include(c => c.CategoryType)
-                    .Where(c => c.Name.ToLower().Contains(searchTerm))
-                    .ToListAsync(ct);
+                Id = c.Id,
+                Title = c.Name,
+                Subtitle = c.CategoryType?.Name,
+                Type = "category",
+                ImageUrl = c.IconUrl
+            }));
 
-                searchResults.AddRange(categories.Select(c => new SearchResultItemDto
-                {
-                    Id = c.Id,
-                    Title = c.Name,
-                    Subtitle = c.CategoryType?.Name,
-                    Type = "category",
-                    ImageUrl = c.IconUrl
-                }));
-            }
+            var topics = await _uow.GenericRepository<Topic>()
+                .GetQueryable()
+                .AsNoTracking()
+                .Where(t => t.Title.ToLower().Contains(searchTerm))
+                .ToListAsync(ct);
 
-            if (ShouldSearch(searchType, "topic"))
+            searchResults.AddRange(topics.Select(t => new SearchResultItemDto
             {
-                var topics = await _uow.GenericRepository<Topic>()
-                    .GetQueryable()
-                    .AsNoTracking()
-                    .Where(t => t.Title.ToLower().Contains(searchTerm))
-                    .ToListAsync();
+                Id = t.Id,
+                Title = t.Title,
+                Type = "topic"
+            }));
 
-                searchResults.AddRange(topics.Select(t => new SearchResultItemDto
-                {
-                    Id = t.Id,
-                    Title = t.Title,
-                    Type = "topic"
-                }));
-            }
+            var tracks = await _uow.GenericRepository<Track>()
+                .GetQueryable()
+                .AsNoTracking()
+                .Include(t => t.Narrator)
+                .Where(t => t.Title.ToLower().Contains(searchTerm))
+                .ToListAsync(ct);
 
-            if (ShouldSearch(searchType, "track"))
+            searchResults.AddRange(tracks.Select(t => new SearchResultItemDto
             {
-                var tracks = await _uow.GenericRepository<Track>()
-                    .GetQueryable()
-                    .AsNoTracking()
-                    .Include(t => t.Narrator)
-                    .Where(t => t.Title.ToLower().Contains(searchTerm))
-                    .ToListAsync(ct);
+                Id = t.Id,
+                Title = t.Title,
+                Subtitle = t.Narrator?.Name,
+                Type = "track",
+                CourseId = t.CourseId,
+                DurationSec = t.DurationSec,
+                AudioUrl = t.AudioUrl,
+                ImageUrl = t.ImageUrl
+            }));
 
-                searchResults.AddRange(tracks.Select(t => new SearchResultItemDto
-                {
-                    Id = t.Id,
-                    Title = t.Title,
-                    Subtitle = t.Narrator?.Name,
-                    Type = "track",
-                    CourseId = t.CourseId,
-                    DurationSec = t.DurationSec,
-                    AudioUrl = t.AudioUrl,
-                    ImageUrl = t.ImageUrl
-                }));
-            }
+            var reminders = await _uow.GenericRepository<Reminder>()
+                .GetQueryable()
+                .AsNoTracking()
+                .Where(r => r.Label != null && r.Label.ToLower().Contains(searchTerm))
+                .ToListAsync(ct);
 
-            if (ShouldSearch(searchType, "reminder"))
+            searchResults.AddRange(reminders.Select(r => new SearchResultItemDto
             {
-                var reminders = await _uow.GenericRepository<Reminder>()
-                    .GetQueryable()
-                    .AsNoTracking()
-                    .Where(r => r.Label != null && r.Label.ToLower().Contains(searchTerm))
-                    .ToListAsync(ct);
+                Id = r.Id,
+                Title = r.Label ?? "Reminder",
+                Subtitle = r.Time.ToString(@"hh\:mm"),
+                Type = "reminder",
+                ReminderTime = r.Time.ToString(@"hh\:mm")
+            }));
 
-                searchResults.AddRange(reminders.Select(r => new SearchResultItemDto
-                {
-                    Id = r.Id,
-                    Title = r.Label ?? "Reminder",
-                    Subtitle = r.Time.ToString(@"hh\:mm"),
-                    Type = "reminder",
-                    ReminderTime = r.Time.ToString(@"hh\:mm")
-                }));
-            }
 
             var totalItems = searchResults.Count;
             var totalPages = (int)Math.Ceiling((double)totalItems / query.Limit);
@@ -176,12 +151,6 @@ namespace SlientMoon.Application.Features.Search.Queries.Search
                     TotalPages = totalPages
                 }
             };
-        }
-
-        private static bool ShouldSearch(string? searchType, params string[] allowedTypes)
-        {
-            if (string.IsNullOrEmpty(searchType)) return true;
-            return allowedTypes.Contains(searchType);
         }
     }
     }

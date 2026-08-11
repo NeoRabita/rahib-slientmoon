@@ -43,7 +43,7 @@ namespace SlientMoon.Application.Features.Tracks.Queries.GetTrackById
             if (track is null)
             {
                 _logger.LogWarning("GetTrackById failed. Track not found: {TrackId}", query.Id);
-                return Result.Failure<TrackDetailDto>(DomainErrors.NotFound(query.Id));
+                return Error.NotFound("Track.NotFound", "Track not found");
             }
 
             var dto = new TrackDetailDto

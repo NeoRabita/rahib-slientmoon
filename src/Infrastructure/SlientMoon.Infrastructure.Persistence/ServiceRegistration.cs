@@ -1,21 +1,24 @@
-﻿using System;
-using System.Linq;
-using System.Reflection;
-using Dapper;
+﻿using Dapper;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
+using Minio;
 using SlientMoon.Application.Interfaces.Caching;
 using SlientMoon.Application.Interfaces.Logging;
 using SlientMoon.Application.Interfaces.Repositories;
 using SlientMoon.Application.Interfaces.Services;
 using SlientMoon.Infrastructure.Persistence.Caching;
+using SlientMoon.Infrastructure.Persistence.Configurations;
 using SlientMoon.Infrastructure.Persistence.Contexts;
 using SlientMoon.Infrastructure.Persistence.Dapper;
 using SlientMoon.Infrastructure.Persistence.Logging;
 using SlientMoon.Infrastructure.Persistence.Repositories;
 using SlientMoon.Infrastructure.Persistence.Services;
 using SlientMoon.Infrastructure.Persistence.Settings;
+using System;
+using System.Linq;
+using System.Reflection;
 
 namespace SlientMoon.Infrastructure.Persistence
 {
@@ -30,6 +33,17 @@ namespace SlientMoon.Infrastructure.Persistence
             services.AddStackExchangeRedisCache(options => {
                 options.Configuration = configuration["APIAppSettings:Redis"];
                 options.InstanceName = Assembly.GetEntryAssembly()?.GetName().Name + "_";
+            });
+            services.Configure<MinioOptions>(configuration.GetSection("MinioOptions"));
+            services.AddScoped<IMinioClient>(sp =>
+            {
+                var options = sp.GetRequiredService<IOptions<MinioOptions>>().Value;
+
+                return new MinioClient()
+                    .WithEndpoint(options.Endpoint)
+                    .WithCredentials(options.AccessKey, options.SecretKey)
+                    .WithSSL(options.SSL)
+                    .Build();
             });
 
             services.AddScoped(typeof(IAppLogger<>), typeof(LoggerManager<>));
@@ -47,6 +61,7 @@ namespace SlientMoon.Infrastructure.Persistence
             services.AddScoped<ICurrentUserService, CurrentUserService>();
             services.AddScoped<ITopicRepository, TopicRepository>();
             services.AddScoped<ICourseRepository, CourseRepository>();
+            services.AddScoped<IStorageService, MinioStorageService>();
             services.AddScoped<IDailyThoughtRepository, DailyThoughtRepository>();
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IFavoriteRepository, FavoriteRepository>();

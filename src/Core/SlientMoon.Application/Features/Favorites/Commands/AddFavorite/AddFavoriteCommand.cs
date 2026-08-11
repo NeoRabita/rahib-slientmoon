@@ -49,7 +49,7 @@ namespace SlientMoon.Application.Features.Favorites.Commands.AddFavorite
             var course = await _uow.CourseRepository.GetByIdAsync(command.CourseId);
             if (course == null)
             {
-                return FavoriteErrors.CourseNotFound;
+                return CourseErrors.NotFound;
             }
 
             bool alreadyExists = await _uow.FavoriteRepository.GetQueryable()

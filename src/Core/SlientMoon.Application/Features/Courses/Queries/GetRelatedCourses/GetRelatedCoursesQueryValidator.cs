@@ -7,12 +7,10 @@ namespace SlientMoon.Application.Features.Courses.Queries.GetRelatedCourses
         public GetRelatedCoursesQueryValidator()
         {
             RuleFor(x => x.Id)
-                .NotEmpty()
-                .WithMessage("Kurs ID-si boş ola bilməz.");
+                .NotEmpty();
 
             RuleFor(x => x.Limit)
-                .GreaterThan(0)
-                .WithMessage("Limit 0-dan böyük olmalıdır.");
+                .GreaterThan(0);
         }
     }
 }

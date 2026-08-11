@@ -21,6 +21,7 @@ namespace SlientMoon.Application.Features.Auth.Commands.ResendOtp
         private readonly IUow _uow;
         private readonly IMessagePublisher _messagePublisher;
         private readonly IEmailService _emailService;
+        private readonly IDateTimeService _dateTimeService;
         private readonly IAppLogger<ResendOtpCommandHandler> _logger;
 
 
@@ -29,6 +30,7 @@ namespace SlientMoon.Application.Features.Auth.Commands.ResendOtp
             IEmailService emailService,
             IMessagePublisher messagePublisher,
             IUow uow,
+            IDateTimeService dateTimeService,
             IAppLogger<ResendOtpCommandHandler> logger)
         {
             _otpService = otpService;
@@ -36,6 +38,7 @@ namespace SlientMoon.Application.Features.Auth.Commands.ResendOtp
             _messagePublisher = messagePublisher;
             _uow = uow;
             _logger = logger;
+            _dateTimeService = dateTimeService;
         }
 
         public async Task<Result<ResendOtpResponse>> Handle(ResendOtpCommand command, CancellationToken ct)
@@ -64,7 +67,7 @@ namespace SlientMoon.Application.Features.Auth.Commands.ResendOtp
             return new ResendOtpResponse
             {
                 Message = "New OTP code has been sent to your email.",
-                OtpExpiresAt = DateTime.UtcNow.AddMinutes(10)
+                OtpExpiresAt = _dateTimeService.NowUtc.AddMinutes(10)
             };
 
         }

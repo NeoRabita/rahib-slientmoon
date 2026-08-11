@@ -10,20 +10,16 @@ namespace SlientMoon.Application.Features.Courses.Queries.GetCourses
         public GetCoursesQueryValidator()
         {
             RuleFor(x => x.Page)
-                .GreaterThanOrEqualTo(1)
-                .WithMessage("{PropertyName} ən azı 1 olmalıdır.");
+                .GreaterThanOrEqualTo(1);
 
             RuleFor(x => x.Limit)
-                .InclusiveBetween(1, 100)
-                .WithMessage("{PropertyName} 1 ilə 100 arasında olmalıdır.");
+                .InclusiveBetween(1, 100);
 
             RuleFor(x => x.Sort)
-                .Must(sort => string.IsNullOrEmpty(sort) || AllowedSorts.Contains(sort.ToLower()))
-                .WithMessage($"{{PropertyName}} yalnız bunlardan biri ola bilər: {string.Join(", ", AllowedSorts)}.");
+                .Must(sort => string.IsNullOrEmpty(sort) || AllowedSorts.Contains(sort.ToLower()));
 
             RuleFor(x => x.Q)
-                .MaximumLength(100)
-                .WithMessage("{PropertyName} maksimum 100 simvol ola bilər.");
+                .MaximumLength(100);
         }
     }
 }
