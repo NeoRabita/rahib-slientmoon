@@ -95,12 +95,10 @@ namespace SlientMoon.WebApi
                     var context = services.GetRequiredService<AppDbContext>();
                     var dateTimeService = services.GetRequiredService<IDateTimeService>();
 
-                    // Async metodu sinxron çağırmaq üçün (və ya Configure-u async Task edə bilərsən)
                     DbInitializer.SeedAsync(context, dateTimeService).GetAwaiter().GetResult();
                 }
                 catch (System.Exception ex)
                 {
-                    // Tətbiq ayağa qalxarkən seed xətası olsa loqlamaq üçün
                     var logger = services.GetRequiredService<Microsoft.Extensions.Logging.ILogger<Startup>>();
                     logger.LogError(ex, "Verilənlər bazasına Seed Data doldurularkən xəta baş verdi.");
                 }

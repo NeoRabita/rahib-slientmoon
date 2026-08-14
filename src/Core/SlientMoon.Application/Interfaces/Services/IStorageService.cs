@@ -9,6 +9,12 @@ namespace SlientMoon.Application.Interfaces.Services
     public interface IStorageService
     {
         Task<UploadFileResponseDto> UploadAsync(Stream fileStream, string fileName, string contentType, StorageType storageType, CancellationToken cancellationToken);
+
+        Task<TrackStreamDto> GetStreamAsync(
+            string filePath,
+            StorageType storageType,
+            string? rangeHeader,
+            CancellationToken ct);
         Task<Stream> DownloadAsync(string fileName, StorageType storageType, CancellationToken cancellationToken);
         Task DeleteAsync(string fileName, StorageType storageType, CancellationToken cancellationToken);
     }

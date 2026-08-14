@@ -9,7 +9,10 @@ namespace SlientMoon.WebApi.Controllers
     public class StorageController : BaseController
     {
         [HttpPost("upload")]
-        public async Task<IResult> Upload(IFormFile file, [FromForm] StorageType storageType)
+        public async Task<IResult> Upload(
+            IFormFile file,
+            [FromForm] StorageType storageType,
+            [FromForm] string? entityId)
         {
             await using var stream = file.OpenReadStream();
 
@@ -17,7 +20,8 @@ namespace SlientMoon.WebApi.Controllers
                 stream,
                 file.FileName,
                 file.ContentType,
-                storageType
+                storageType,
+                entityId
             );
 
             var result = await Dispatcher.Send(command);

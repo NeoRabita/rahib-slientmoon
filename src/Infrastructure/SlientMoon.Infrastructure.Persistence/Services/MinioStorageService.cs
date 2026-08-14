@@ -5,11 +5,12 @@ using SlientMoon.Application.DTOs.Storage;
 using SlientMoon.Application.Interfaces.Services;
 using SlientMoon.Domain.Enums;
 using SlientMoon.Infrastructure.Persistence.Configurations;
+using SlientMoon.Infrastructure.Persistence.Extensions;
 using System;
 using System.IO;
+using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using SlientMoon.Infrastructure.Persistence.Extensions;
 
 namespace SlientMoon.Infrastructure.Persistence.Services
 {
@@ -17,6 +18,7 @@ namespace SlientMoon.Infrastructure.Persistence.Services
     {
         private readonly IMinioClient _minioClient;
         private readonly MinioOptions _options;
+        private static readonly HttpClient _httpClient = new();
 
         public MinioStorageService(IMinioClient minioClient, IOptions<MinioOptions> options)
         {
@@ -76,5 +78,41 @@ namespace SlientMoon.Infrastructure.Persistence.Services
             await _minioClient.RemoveObjectAsync(removeObjectArgs,cancellationToken);
         }
 
+        public async Task<TrackStreamDto> GetStreamAsync(string fileName, StorageType storageType, string rangeHeader, CancellationToken ct)
+        {
+            var bucketName = storageType.GetBucketName(_options);
+
+            var presignedArgs = new PresignedGetObjectArgs()
+                .WithBucket(bucketName)
+                .WithObject(fileName)
+                .WithExpiry(60 * 60);
+
+            var url = await _minioClient.PresignedGetObjectAsync(presignedArgs);
+            var requestMessage = new HttpRequestMessage(HttpMethod.Get, url);
+
+            if (!string.IsNullOrEmpty(rangeHeader))
+            {
+                requestMessage.Headers.TryAddWithoutValidation("Range", rangeHeader);
+            }
+
+            var response = await _httpClient.SendAsync(requestMessage, HttpCompletionOption.ResponseHeadersRead, ct);
+
+            var stream = await response.Content.ReadAsStreamAsync(ct);
+            var contentType = response.Content.Headers.ContentType?.ToString() ?? "audio/mpeg";
+
+            string? contentRange = response.Content.Headers.ContentRange?.ToString();
+            long? contentLength = response.Content.Headers.ContentLength;
+
+            return new TrackStreamDto
+            {
+                Stream = stream,
+                ContentType = contentType,
+                ContentLength = contentLength,
+                ContentRange = contentRange,
+                StatusCode = (int)response.StatusCode
+            };
+        }
+
+        }
     }
-}
+
