@@ -8,38 +8,21 @@ using System.Threading.Tasks;
 
 namespace SlientMoon.Infrastructure.Persistence.Repositories
 {
-    public class UserRepository : IUserRepository
+    public class UserRepository : GenericRepository<ApplicationUser>, IUserRepository
     {
-        private readonly AppDbContext _context;
 
-        public UserRepository(AppDbContext context)
+        public UserRepository(AppDbContext dbContext) : base(dbContext)
         {
-            _context = context;
         }
 
         public async Task<ApplicationUser> GetByEmailAsync(string email)
         {
-            return await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
-        }
-
-        public async Task<ApplicationUser> GetByIdAsync(string id)
-        {
-            return await _context.Users.FirstOrDefaultAsync(u => u.Id == id);
-        }
-
-        public async Task AddAsync(ApplicationUser user)
-        {
-            await _context.Users.AddAsync(user);
-        }
-
-        public void Update(ApplicationUser user)
-        {
-            _context.Users.Update(user);
+            return await _dbContext.Users.FirstOrDefaultAsync(u => u.Email == email);
         }
 
         public async Task<ApplicationUser?> GetByRefreshTokenAsync(string refreshToken)
         {
-            return await _context.Users.Include(u => u.RefreshToken).FirstOrDefaultAsync(u => u.RefreshToken.Token == refreshToken);
+            return await _dbContext.Users.Include(u => u.RefreshToken).FirstOrDefaultAsync(u => u.RefreshToken.Token == refreshToken);
         }
     }
 }

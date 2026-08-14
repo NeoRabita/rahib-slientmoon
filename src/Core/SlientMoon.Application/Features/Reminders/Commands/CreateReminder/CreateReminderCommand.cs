@@ -40,18 +40,11 @@ namespace SlientMoon.Application.Features.Reminders.Commands.CreateReminder
 
         public async Task<Result<ReminderDto>> Handle(CreateReminderCommand command, CancellationToken ct)
         {
-            if (!_currentUserService.IsAuthenticated)
-            {
-                _logger.LogWarning("Unauthorized attempt to create a reminder.");
-                return UserErrors.Unauthorized();
-            }
-
-            _logger.LogInformation("Creating a new reminder for UserId: {UserId}", _currentUserService.UserId);
 
             var reminder = new Reminder
             {
                 Id = Guid.NewGuid().ToString(),
-                UserId = _currentUserService.UserId!,
+                UserId = _currentUserService.GetUser(),
                 Time = command.Time,
                 DaysOfWeek = command.DaysOfWeek,
                 Label = command.Label,
@@ -59,7 +52,9 @@ namespace SlientMoon.Application.Features.Reminders.Commands.CreateReminder
                 CreatedAt = _dateTimeService.NowUtc
             };
 
-            await _uow.ReminderRepository.AddReminderAsync(reminder);
+            _logger.LogInformation("Creating a new reminder for UserId: {UserId}", _currentUserService.UserId);
+
+            await _uow.ReminderRepository.AddAsync(reminder);
 
             var reminderDto = new ReminderDto
             {

@@ -5,10 +5,7 @@ using System.Threading.Tasks;
 
 namespace SlientMoon.Application.Interfaces.Repositories
 {
-    public interface ICategoryRepository
+    public interface ICategoryRepository : IGenericRepository<Category>
     {
-        IQueryable<Category> GetAllAsQueryable();
-
-        Task<Category?> GetByIdAsync(string id);
     }
 }

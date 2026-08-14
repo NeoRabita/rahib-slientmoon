@@ -37,14 +37,7 @@ namespace SlientMoon.Application.Features.Profile.Commands.UpdateProfile
 
         public async Task<Result<UserDto>> Handle(UpdateProfileCommand command, CancellationToken ct)
         {
-            if (!_currentUserService.IsAuthenticated)
-            {
-                _logger.LogWarning("Unauthorized attempt to fetch user topics.");
-                return UserErrors.Unauthorized();
-            }
-
-
-            string userId = _currentUserService.UserId;
+            string userId = _currentUserService.GetUser();
            
 
             _logger.LogInformation("Profile update started for UserId: {UserId}", userId);

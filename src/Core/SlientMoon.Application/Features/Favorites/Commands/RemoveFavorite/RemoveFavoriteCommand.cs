@@ -36,17 +36,12 @@ namespace SlientMoon.Application.Features.Favorites.Commands.RemoveFavorite
 
         public async Task<Result<bool>> Handle(RemoveFavoriteCommand command, CancellationToken ct)
         {
-            if (!_currentUserService.IsAuthenticated)
-            {
-                return UserErrors.Unauthorized();
-            }
-
-            var userId = _currentUserService.UserId;
+            var userId = _currentUserService.GetUser();
 
             var favorite = await _uow.FavoriteRepository.GetByIdAsync(command.Id);
             if (favorite == null)
             {
-                return FavoriteErrors.NotFound;
+                return CourseErrors.NotFound;
             }
 
             if(favorite.UserId != userId)
@@ -54,7 +49,7 @@ namespace SlientMoon.Application.Features.Favorites.Commands.RemoveFavorite
                 return FavoriteErrors.Forbidden;
             }
 
-            _uow.FavoriteRepository.RemoveFavorite(favorite);
+            _uow.FavoriteRepository.Delete(favorite);
 
             _logger.LogInformation("Favorite removed. Id: {FavoriteId}, UserId: {UserId}", command.Id, userId);
 

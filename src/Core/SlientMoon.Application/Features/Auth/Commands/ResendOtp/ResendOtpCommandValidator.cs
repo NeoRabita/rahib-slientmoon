@@ -7,9 +7,9 @@ namespace SlientMoon.Application.Features.Auth.Commands.ResendOtp
         public ResendOtpCommandValidator()
         {
             RuleFor(x => x.Email)
-                .NotEmpty().WithMessage("{PropertyName} is required.")
+                .NotEmpty()
                 .NotNull()
-                .EmailAddress().WithMessage("{PropertyName} must be a valid email address.");
+                .EmailAddress();
         }
     }
 }

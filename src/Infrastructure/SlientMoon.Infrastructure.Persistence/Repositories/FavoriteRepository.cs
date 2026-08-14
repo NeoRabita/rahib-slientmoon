@@ -7,33 +7,11 @@ using System.Threading.Tasks;
 
 namespace SlientMoon.Infrastructure.Persistence.Repositories
 {
-    public class FavoriteRepository : IFavoriteRepository
+    public class FavoriteRepository : GenericRepository<Favorite>, IFavoriteRepository
     {
-        private readonly AppDbContext _context;
-
-        public FavoriteRepository(AppDbContext context)
+        public FavoriteRepository(AppDbContext dbContext) : base(dbContext)
         {
-            _context = context;
         }
 
-        public IQueryable<Favorite> GetAllAsFavorites()
-        {
-            return _context.Favorites.AsQueryable();
-        }
-
-        public async Task AddFavoriteAsync(Favorite favorite)
-        {
-            await _context.Favorites.AddAsync(favorite);
-        }
-
-        public async Task<Favorite> GetByIdAsync(string id)
-        {
-            return await _context.Favorites.FirstOrDefaultAsync(f => f.Id == id);
-        }
-
-        public void RemoveFavorite(Favorite favorite)
-        {
-            _context.Favorites.Remove(favorite);
-        }
     }
 }

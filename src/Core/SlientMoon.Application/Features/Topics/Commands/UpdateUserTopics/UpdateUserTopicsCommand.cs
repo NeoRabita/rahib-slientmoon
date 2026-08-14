@@ -41,7 +41,7 @@ namespace SlientMoon.Application.Features.Topics.Commands.UpdateUserTopics
         public async Task<Result<List<TopicDto>>> Handle(UpdateUserTopicsCommand command, CancellationToken ct)
         {
 
-            string userId = _currentUserService.UserId;
+            string userId = _currentUserService.GetUser();
 
             _logger.LogInformation("UserId {UserId} üçün mövzu yeniləmə prosesi başladı.", userId);
 
@@ -82,7 +82,7 @@ namespace SlientMoon.Application.Features.Topics.Commands.UpdateUserTopics
                 await _uow.TopicRepository.AddUserTopicsAsync(newRelations);
             }
 
-            var updatedTopics = await _uow.TopicRepository.GetAllTopicsAsync();
+            var updatedTopics = await _uow.TopicRepository.GetAllAsync();
             var userTopicsList = updatedTopics
                 .Where(t => command.TopicIds.Contains(t.Id))
                 .Select(t => new TopicDto

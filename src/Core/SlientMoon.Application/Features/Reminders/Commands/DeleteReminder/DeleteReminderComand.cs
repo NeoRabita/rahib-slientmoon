@@ -36,13 +36,7 @@ namespace SlientMoon.Application.Features.Reminders.Commands.DeleteReminder
 
         public async Task<Result<bool>> Handle(DeleteReminderCommand command, CancellationToken cancellationToken)
         {
-            if (!_currentUserService.IsAuthenticated)
-            {
-                _logger.LogWarning("Unauthorized attempt to fetch user topics.");
-                return UserErrors.Unauthorized();
-            }
-
-            string userId = _currentUserService.UserId;
+            string userId = _currentUserService.GetUser();
 
             var reminder = await _uow.ReminderRepository.GetByIdAndUserIdAsync(command.Id, userId);
 
@@ -53,7 +47,7 @@ namespace SlientMoon.Application.Features.Reminders.Commands.DeleteReminder
 
             _logger.LogInformation("UserId {UserId} üçün Id-si {ReminderId} olan xatırlatma silinir.", userId, command.Id);
 
-            _uow.ReminderRepository.RemoveReminder(reminder);
+            _uow.ReminderRepository.Delete(reminder);
 
             return true;
         }

@@ -3,6 +3,7 @@ using Microsoft.Extensions.Options;
 using SlientMoon.Application.DTOs.Messages;
 using SlientMoon.Application.Interfaces.Services;
 using SlientMoon.Domain.Enums;
+using SlientMoon.Domain.Errors;
 using SlientMoon.Infrastructure.Persistence.Settings;
 using System;
 using System.Text.Json;
@@ -66,10 +67,7 @@ namespace SlientMoon.Infrastructure.Persistence.Services
             var cachedOtpData = await _cache.GetStringAsync(key);
 
             if (cachedOtpData is null)
-                return Result.Failure(Error.NotFound(
-                    "OTP_NOT_FOUND",
-                    "No pending OTP found. Please request a new one"
-                    ));
+                return Result.Failure(OtpErrors.OtpNotFound);
 
             var otpData = JsonSerializer.Deserialize<OtpData>(cachedOtpData);
 
@@ -77,10 +75,7 @@ namespace SlientMoon.Infrastructure.Persistence.Services
             {
                 await _cache.RemoveAsync(key);
 
-                return Result.Failure(Error.Failure(
-                    "RATE_LIMIT_EXCEEDED",
-                    "You have exceeded the maximum number of attempts. Please request a new OTP."
-                ));
+                return Result.Failure(OtpErrors.RateLimitExceeded);
             }
 
 
@@ -93,10 +88,7 @@ namespace SlientMoon.Infrastructure.Persistence.Services
                 };
                 await _cache.SetStringAsync(key, JsonSerializer.Serialize(otpData), options);
 
-                return Result.Failure(Error.Validation(
-                    "INVALID_OTP",
-                      $"The OTP code is incorrect. {MaxAttempts - otpData.Attempts} attempts remaining"
-                ));
+                return Result.Failure(OtpErrors.InvalidOtp);
             }
 
             await _cache.RemoveAsync(key);

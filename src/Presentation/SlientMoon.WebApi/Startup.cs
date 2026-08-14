@@ -28,6 +28,17 @@ namespace SlientMoon.WebApi
         }
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddCors(options =>
+            {
+                options.AddPolicy("AllowAllForDev", builder =>
+                {
+                    builder
+                        .SetIsOriginAllowed(_ => true)
+                        .AllowAnyMethod()
+                        .AllowAnyHeader()
+                        .AllowCredentials();
+                });
+            });
             services.DisableDefaultApiValidation();
             services.AddControllers()
                 .AddJsonOptions(options =>
@@ -60,6 +71,7 @@ namespace SlientMoon.WebApi
             app.UseLocalization();
             //app.UseHttpsRedirection();
             app.UseRouting();
+            app.UseCors("AllowAllForDev");
             app.UseSwaggerExtension(env, provider);
             app.UseAuthentication();
             app.UseMiddleware<JwtUserMiddleware>();
@@ -83,12 +95,10 @@ namespace SlientMoon.WebApi
                     var context = services.GetRequiredService<AppDbContext>();
                     var dateTimeService = services.GetRequiredService<IDateTimeService>();
 
-                    // Async metodu sinxron çağırmaq üçün (və ya Configure-u async Task edə bilərsən)
                     DbInitializer.SeedAsync(context, dateTimeService).GetAwaiter().GetResult();
                 }
                 catch (System.Exception ex)
                 {
-                    // Tətbiq ayağa qalxarkən seed xətası olsa loqlamaq üçün
                     var logger = services.GetRequiredService<Microsoft.Extensions.Logging.ILogger<Startup>>();
                     logger.LogError(ex, "Verilənlər bazasına Seed Data doldurularkən xəta baş verdi.");
                 }

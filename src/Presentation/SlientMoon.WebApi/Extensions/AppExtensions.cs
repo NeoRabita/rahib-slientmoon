@@ -51,12 +51,6 @@ namespace SlientMoon.WebApi.Extensions
 
         public static void UseErrorHandling(this IApplicationBuilder app, IWebHostEnvironment env)
         {
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage();
-                return;
-            }
-
             app.UseExceptionHandler(handlerApp => handlerApp.Run(async context =>
             {
                 var exceptionFeature = context.Features.Get<IExceptionHandlerPathFeature>();
@@ -76,11 +70,16 @@ namespace SlientMoon.WebApi.Extensions
                     {
                         UnauthorizedAccessException => StatusCodes.Status401Unauthorized,
                         KeyNotFoundException => StatusCodes.Status404NotFound,
+                        ArgumentNullException or ArgumentException => StatusCodes.Status400BadRequest,
+                        Minio.Exceptions.ObjectNotFoundException => StatusCodes.Status404NotFound,
+                        Minio.Exceptions.BucketNotFoundException => StatusCodes.Status404NotFound,
+                        Minio.Exceptions.MinioException => StatusCodes.Status502BadGateway,
                         _ => StatusCodes.Status500InternalServerError
                     };
 
                     errorType = statusCode switch
                     {
+                        400 => ErrorType.Validation,
                         401 => ErrorType.Unauthorized,
                         404 => ErrorType.NotFound,
                         _ => ErrorType.Unexpected
@@ -88,6 +87,7 @@ namespace SlientMoon.WebApi.Extensions
 
                     var typeInfo = errorType switch
                     {
+                        ErrorType.Validation => "https://tools.ietf.org/html/rfc7231#section-6.5.1",
                         ErrorType.Unauthorized => "https://tools.ietf.org/html/rfc7235#section-3.1",
                         ErrorType.NotFound => "https://tools.ietf.org/html/rfc7231#section-6.5.4",
                         _ => "https://tools.ietf.org/html/rfc7231#section-6.6.1"

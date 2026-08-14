@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Http;
 using SlientMoon.Application.Interfaces.Services;
+using SlientMoon.Domain.Errors;
 using SlientMoon.Infrastructure.Persistence.Services;
 using System;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace SlientMoon.Infrastructure.Persistence.Middleware
@@ -26,6 +28,11 @@ namespace SlientMoon.Infrastructure.Persistence.Middleware
                 var token = firstQuoteIndex >= 0 ? rawToken.Substring(0, firstQuoteIndex) : rawToken;
 
                 var userId = jwtTokenService.GetUserIdFromToken(token);
+
+                if (string.IsNullOrEmpty(userId))
+                {
+                    throw new UnauthorizedAccessException("Invalid or expired token.");
+                }
 
                 if (!string.IsNullOrEmpty(userId) && currentUserService is CurrentUserService service)
                 {

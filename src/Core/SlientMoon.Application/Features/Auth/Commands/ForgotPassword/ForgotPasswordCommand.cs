@@ -1,7 +1,8 @@
 ﻿using Application.Abstractions.Messaging;
-using SlientMoon.Application.DTOs.Email;
+using Microsoft.Extensions.Localization;
 using SlientMoon.Application.Interfaces.Logging;
 using SlientMoon.Application.Interfaces.Services;
+using SlientMoon.SharedKernel.Resources;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -44,15 +45,14 @@ namespace SlientMoon.Application.Features.Auth.Commands.ForgotPassword
             if (user is null)
             {
                 _logger.LogWarning("Forgot password requested for non-existing email: {Email}", command.Email);
-                return "Şifrə sıfırlama kodu e-poçt ünvanınıza göndərildi.";
+                return "Auth.PasswordResetCodeSent";
             }
 
             var otp = await _otpService.GenerateOtpAsync(user.Id, user.Email);
 
-
             _logger.LogInformation("Forgot password OTP successfully generated and queued for UserId: {UserId}", user.Id);
 
-            return "Şifrə sıfırlama kodu e-poçt ünvanınıza göndərildi.";
+            return "Auth.PasswordResetCodeSent";
         }
     }
 }

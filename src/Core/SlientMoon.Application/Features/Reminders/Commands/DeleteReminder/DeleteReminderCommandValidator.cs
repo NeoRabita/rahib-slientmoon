@@ -7,7 +7,7 @@ namespace SlientMoon.Application.Features.Reminders.Commands.DeleteReminder
         public DeleteReminderCommandValidator()
         {
             RuleFor(r => r.Id)
-                .NotEmpty().WithMessage("{PropertyName} is required.")
+                .NotEmpty()
                 .NotNull();
         }
     }

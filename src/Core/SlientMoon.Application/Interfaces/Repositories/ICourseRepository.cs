@@ -5,12 +5,9 @@ using System.Threading.Tasks;
 
 namespace SlientMoon.Application.Interfaces.Repositories
 {
-    public interface ICourseRepository
+    public interface ICourseRepository : IGenericRepository<Course>
     {
-        // cancellationToken params
         public Task<List<Course>> GetHomeFeedCoursesAsync(CancellationToken cancellationToken = default);
-
-        public Task<Course?> GetByIdAsync(string id, CancellationToken cancellationToken = default);
     }
 }
 

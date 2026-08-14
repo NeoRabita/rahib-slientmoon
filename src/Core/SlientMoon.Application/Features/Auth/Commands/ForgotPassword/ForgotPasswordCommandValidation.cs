@@ -7,8 +7,8 @@ namespace SlientMoon.Application.Features.Auth.Commands.ForgotPassword
         public ForgotPasswordCommandValidator()
         {
             RuleFor(x => x.Email)
-                .NotEmpty().WithMessage("{PropertyName} is required.")
-                .EmailAddress().WithMessage("{PropertyName} must be a valid email address.");
+                .NotEmpty()
+                .EmailAddress();
         }
     }
 }

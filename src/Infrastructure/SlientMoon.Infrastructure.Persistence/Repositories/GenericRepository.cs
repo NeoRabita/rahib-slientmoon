@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Threading;
 using System;
+using System.Linq;
 
 namespace SlientMoon.Infrastructure.Persistence.Repositories
 {
@@ -52,6 +53,11 @@ namespace SlientMoon.Infrastructure.Persistence.Repositories
         public virtual async Task<IEnumerable<T>> GetAllAsync(CancellationToken cancellationToken = default)
         {
             return await _dbSet.AsNoTracking().ToListAsync(cancellationToken);
+        }
+
+        public virtual IQueryable<T> GetQueryable(CancellationToken cancellationToken = default)
+        {
+            return _dbSet.AsQueryable();
         }
     }
 }

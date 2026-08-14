@@ -63,8 +63,8 @@ namespace SlientMoon.Infrastructure.Persistence.Migrations
                     b.Property<string>("Id")
                         .HasColumnType("NVARCHAR2(450)");
 
-                    b.Property<int>("CategoryType")
-                        .HasColumnType("NUMBER(10)");
+                    b.Property<string>("CategoryTypeId")
+                        .HasColumnType("NVARCHAR2(450)");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("TIMESTAMP(7)");
@@ -73,14 +73,43 @@ namespace SlientMoon.Infrastructure.Persistence.Migrations
                         .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<string>("Name")
-                        .HasColumnType("NVARCHAR2(2000)");
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("NVARCHAR2(150)");
 
                     b.Property<string>("Slug")
-                        .HasColumnType("NVARCHAR2(2000)");
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("NVARCHAR2(150)");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Categories");
+                    b.HasIndex("CategoryTypeId");
+
+                    b.ToTable("Categories", (string)null);
+                });
+
+            modelBuilder.Entity("SlientMoon.Domain.Entities.CategoryType", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("NVARCHAR2(450)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TIMESTAMP(7)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("NVARCHAR2(100)");
+
+                    b.Property<string>("Slug")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("NVARCHAR2(100)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("CategoryTypes", (string)null);
                 });
 
             modelBuilder.Entity("SlientMoon.Domain.Entities.Course", b =>
@@ -93,6 +122,9 @@ namespace SlientMoon.Infrastructure.Persistence.Migrations
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("TIMESTAMP(7)");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<int>("DurationSec")
                         .HasColumnType("NUMBER(10)");
@@ -110,9 +142,6 @@ namespace SlientMoon.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("NVARCHAR2(200)");
-
-                    b.Property<int>("Type")
-                        .HasColumnType("NUMBER(10)");
 
                     b.Property<int>("ViewCount")
                         .HasColumnType("NUMBER(10)");
@@ -298,7 +327,7 @@ namespace SlientMoon.Infrastructure.Persistence.Migrations
                         {
                             Id = "6f9b17f4-d55c-4f7f-a123-1d54bdf19001",
                             ColorHex = "#8E97FD",
-                            CreatedAt = new DateTime(2026, 7, 29, 20, 47, 8, 735, DateTimeKind.Utc).AddTicks(2653),
+                            CreatedAt = new DateTime(2026, 8, 5, 15, 43, 19, 566, DateTimeKind.Utc).AddTicks(5762),
                             IconKey = "leaf",
                             Slug = "reduce-stress",
                             Title = "Reduce Stress"
@@ -307,11 +336,55 @@ namespace SlientMoon.Infrastructure.Persistence.Migrations
                         {
                             Id = "6f9b17f4-d55c-4f7f-a123-1d54bdf19002",
                             ColorHex = "#FFC97E",
-                            CreatedAt = new DateTime(2026, 7, 29, 20, 47, 8, 735, DateTimeKind.Utc).AddTicks(2660),
+                            CreatedAt = new DateTime(2026, 8, 5, 15, 43, 19, 566, DateTimeKind.Utc).AddTicks(5770),
                             IconKey = "moon",
                             Slug = "improve-sleep",
                             Title = "Improve Sleep"
                         });
+                });
+
+            modelBuilder.Entity("SlientMoon.Domain.Entities.Track", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("NVARCHAR2(450)");
+
+                    b.Property<string>("AudioUrl")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<string>("CourseId")
+                        .HasColumnType("NVARCHAR2(450)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TIMESTAMP(7)");
+
+                    b.Property<int>("DurationSec")
+                        .HasColumnType("NUMBER(10)");
+
+                    b.Property<long>("FileSizeBytes")
+                        .HasColumnType("NUMBER(19)");
+
+                    b.Property<string>("ImageUrl")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<string>("MimeType")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<string>("NarratorId")
+                        .HasColumnType("NVARCHAR2(450)");
+
+                    b.Property<string>("Title")
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<int>("TrackNumber")
+                        .HasColumnType("NUMBER(10)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CourseId");
+
+                    b.HasIndex("NarratorId");
+
+                    b.ToTable("Tracks");
                 });
 
             modelBuilder.Entity("SlientMoon.Domain.Entities.UserTopic", b =>
@@ -336,6 +409,16 @@ namespace SlientMoon.Infrastructure.Persistence.Migrations
                         .HasForeignKey("RefreshTokenId");
 
                     b.Navigation("RefreshToken");
+                });
+
+            modelBuilder.Entity("SlientMoon.Domain.Entities.Category", b =>
+                {
+                    b.HasOne("SlientMoon.Domain.Entities.CategoryType", "CategoryType")
+                        .WithMany("Categories")
+                        .HasForeignKey("CategoryTypeId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("CategoryType");
                 });
 
             modelBuilder.Entity("SlientMoon.Domain.Entities.Course", b =>
@@ -405,6 +488,21 @@ namespace SlientMoon.Infrastructure.Persistence.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("SlientMoon.Domain.Entities.Track", b =>
+                {
+                    b.HasOne("SlientMoon.Domain.Entities.Course", "Course")
+                        .WithMany("Tracks")
+                        .HasForeignKey("CourseId");
+
+                    b.HasOne("SlientMoon.Domain.Entities.Narrator", "Narrator")
+                        .WithMany()
+                        .HasForeignKey("NarratorId");
+
+                    b.Navigation("Course");
+
+                    b.Navigation("Narrator");
+                });
+
             modelBuilder.Entity("SlientMoon.Domain.Entities.UserTopic", b =>
                 {
                     b.HasOne("SlientMoon.Domain.Entities.Topic", "Topic")
@@ -434,11 +532,18 @@ namespace SlientMoon.Infrastructure.Persistence.Migrations
                     b.Navigation("Courses");
                 });
 
+            modelBuilder.Entity("SlientMoon.Domain.Entities.CategoryType", b =>
+                {
+                    b.Navigation("Categories");
+                });
+
             modelBuilder.Entity("SlientMoon.Domain.Entities.Course", b =>
                 {
                     b.Navigation("CourseNarrators");
 
                     b.Navigation("DailyThoughts");
+
+                    b.Navigation("Tracks");
                 });
 
             modelBuilder.Entity("SlientMoon.Domain.Entities.Narrator", b =>

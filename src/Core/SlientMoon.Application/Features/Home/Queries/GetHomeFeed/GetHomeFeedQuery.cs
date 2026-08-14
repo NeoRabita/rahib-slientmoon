@@ -37,10 +37,7 @@ namespace SlientMoon.Application.Features.Home.Queries.GetHomeFeed
 
         public async Task<Result<HomeDto>> Handle(GetHomeFeedQuery query, CancellationToken ct)
         {
-            if (!_currentUserService.IsAuthenticated)
-            {
-                return UserErrors.Unauthorized();
-            }
+            string userId = _currentUserService.GetUser();
 
             _logger.LogInformation("Home feed məlumatları sorğulanır.");
 
@@ -62,13 +59,18 @@ namespace SlientMoon.Application.Features.Home.Queries.GetHomeFeed
                 .ToList();
 
             var featuredSleep = allCourses
-                .Where(c => c.Type == CategoryType.Sleep && c.IsFeatured)
+                .Where(c => c.Category != null &&
+                            c.Category.CategoryType != null &&
+                            c.Category.CategoryType.Slug.ToLower() == "sleep" &&
+                            c.IsFeatured)
                 .Take(4)
                 .Select(c => c.ToHomeCourseDto())
                 .ToList();
 
             var popularMeditations = allCourses
-                .Where(c => c.Type == CategoryType.Meditation)
+                .Where(c => c.Category != null &&
+                            c.Category.CategoryType != null &&
+                            c.Category.CategoryType.Slug.ToLower() == "meditation")
                 .OrderByDescending(c => c.ViewCount)
                 .Take(4)
                 .Select(c => c.ToHomeCourseDto())

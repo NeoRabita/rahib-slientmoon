@@ -7,20 +7,20 @@ namespace SlientMoon.Application.Features.Auth.Commands.Register
         public RegisterCommandValidator()
         {
             RuleFor(x => x.Name)
-                .NotNull().WithMessage("{PropertyName} is required.")
-                .NotEmpty().WithMessage("{PropertyName} is required.")
-                .MinimumLength(2).WithMessage("{PropertyName} must be at least 2 characters.")
-                .MaximumLength(80).WithMessage("{PropertyName} must not exceed 80 characters.");
+                .NotNull()
+                .NotEmpty()
+                .MinimumLength(2)
+                .MaximumLength(80);
 
             RuleFor(x => x.Email)
-                .NotNull().WithMessage("{PropertyName} is required.")
-                .NotEmpty().WithMessage("{PropertyName} is required.")
-                .EmailAddress().WithMessage("{PropertyName} must be a valid email address.");
+                .NotNull()
+                .NotEmpty()
+                .EmailAddress();
 
             RuleFor(x => x.Password)
-                .NotNull().WithMessage("{PropertyName} is required.")
-                .NotEmpty().WithMessage("{PropertyName} is required.")
-                .MinimumLength(8).WithMessage("{PropertyName} must be at least 8 characters.");
+                .NotNull()
+                .NotEmpty()
+                .MinimumLength(8);
         }
     }
 }

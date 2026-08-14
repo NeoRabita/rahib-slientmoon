@@ -21,12 +21,39 @@ namespace SlientMoon.Infrastructure.Persistence.Seed
             var now = dateTimeService.NowUtc;
             var today = now.Date;
 
-            // 1. Kategoriyalar (YENİ SƏHƏLƏR ƏLAVƏ OLUNDU)
+            // 1. CategoryTypes (YENİ ENTITY VƏ CƏDVƏL)
+            var sleepType = new CategoryType
+            {
+                Id = Guid.NewGuid().ToString(),
+                Name = "Sleep",
+                Slug = "sleep",
+                CreatedAt = now
+            };
+
+            var meditationType = new CategoryType
+            {
+                Id = Guid.NewGuid().ToString(),
+                Name = "Meditation",
+                Slug = "meditation",
+                CreatedAt = now
+            };
+
+            var musicType = new CategoryType
+            {
+                Id = Guid.NewGuid().ToString(),
+                Name = "Music",
+                Slug = "music",
+                CreatedAt = now
+            };
+
+            await context.CategoryTypes.AddRangeAsync(sleepType, meditationType, musicType);
+
+            // 2. Kategoriyalar (CategoryTypeId İLƏ BAĞLANTI)
             var sleepCategory = new Category
             {
                 Id = Guid.NewGuid().ToString(),
                 Name = "Sleep",
-                CategoryType = CategoryType.Sleep,
+                CategoryTypeId = sleepType.Id, // 👈 Entity-nin Id-si verilir
                 Slug = "sleep",
                 IconUrl = "https://cdn.silentmoon.app/icons/sleep.png",
                 CreatedAt = now
@@ -36,7 +63,7 @@ namespace SlientMoon.Infrastructure.Persistence.Seed
             {
                 Id = Guid.NewGuid().ToString(),
                 Name = "Meditation",
-                CategoryType = CategoryType.Meditation,
+                CategoryTypeId = meditationType.Id,
                 Slug = "meditation",
                 IconUrl = "https://cdn.silentmoon.app/icons/meditation.png",
                 CreatedAt = now
@@ -46,7 +73,7 @@ namespace SlientMoon.Infrastructure.Persistence.Seed
             {
                 Id = Guid.NewGuid().ToString(),
                 Name = "Anxious",
-                CategoryType = CategoryType.Meditation, // və ya uyğun gördüyün tip
+                CategoryTypeId = meditationType.Id,
                 Slug = "anxious",
                 IconUrl = "https://cdn.silentmoon.app/icons/anxious.png",
                 CreatedAt = now
@@ -54,19 +81,18 @@ namespace SlientMoon.Infrastructure.Persistence.Seed
 
             await context.Categories.AddRangeAsync(sleepCategory, meditationCategory, anxiousCategory);
 
-            // 2. Səsləndirənlər (Narrators)
+            // 3. Səsləndirənlər (Narrators)
             var maleNarrator = new Narrator { Id = Guid.NewGuid().ToString(), Name = "Male Voice", Gender = Gender.Male, CreatedAt = now };
             var femaleNarrator = new Narrator { Id = Guid.NewGuid().ToString(), Name = "Female Voice", Gender = Gender.Female, CreatedAt = now };
 
             await context.Narrators.AddRangeAsync(maleNarrator, femaleNarrator);
 
-            // 3. Kurslar (Courses)
+            // 4. Kurslar (Courses)
             var course1 = new Course
             {
                 Id = Guid.NewGuid().ToString(),
                 Title = "Night Island",
                 Subtitle = "Sleep Music",
-                Type = CategoryType.Meditation,
                 ImageUrl = "",
                 DurationSec = 1800,
                 IsFeatured = true,
@@ -80,7 +106,6 @@ namespace SlientMoon.Infrastructure.Persistence.Seed
                 Id = Guid.NewGuid().ToString(),
                 Title = "Sweet Dreams",
                 Subtitle = "Deep Sleep",
-                Type = CategoryType.Sleep,
                 ImageUrl = "",
                 DurationSec = 2400,
                 IsFeatured = true,
@@ -94,7 +119,6 @@ namespace SlientMoon.Infrastructure.Persistence.Seed
                 Id = Guid.NewGuid().ToString(),
                 Title = "Morning Calmness",
                 Subtitle = "Focus & Relax",
-                Type = CategoryType.Meditation,
                 ImageUrl = "",
                 DurationSec = 600,
                 IsFeatured = false,
@@ -105,7 +129,7 @@ namespace SlientMoon.Infrastructure.Persistence.Seed
 
             await context.Courses.AddRangeAsync(course1, course2, course3);
 
-            // 4. Course - Narrator Əlaqələri
+            // 5. Course - Narrator Əlaqələri
             var courseNarrators = new List<CourseNarrator>
             {
                 new CourseNarrator { CourseId = course1.Id, NarratorId = maleNarrator.Id },
@@ -116,7 +140,7 @@ namespace SlientMoon.Infrastructure.Persistence.Seed
 
             await context.CourseNarrators.AddRangeAsync(courseNarrators);
 
-            // 5. Daily Thought
+            // 6. Daily Thought
             var dailyThought = new DailyThought
             {
                 Id = Guid.NewGuid().ToString(),

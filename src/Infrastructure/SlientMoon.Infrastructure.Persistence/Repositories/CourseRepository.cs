@@ -8,18 +8,17 @@ using System.Threading.Tasks;
 
 namespace SlientMoon.Infrastructure.Persistence.Repositories
 {
-    public class CourseRepository : ICourseRepository
+    public class CourseRepository : GenericRepository<Course>, ICourseRepository
     {
-        private readonly AppDbContext _appDbContext;
-
-        public CourseRepository(AppDbContext appDbContext)
+        public CourseRepository(AppDbContext dbContext) : base(dbContext)
         {
-            _appDbContext = appDbContext;
         }
 
-        public async Task<Course> GetByIdAsync(string id, CancellationToken cancellationToken = default)
+        public override async Task<Course?> GetByIdAsync(string id, CancellationToken cancellationToken = default)
         {
-            return await _appDbContext.Courses
+            return await _dbSet
+                .Include(c => c.Category)
+                    .ThenInclude(cat => cat.CategoryType)
                 .Include(c => c.CourseNarrators)
                     .ThenInclude(cn => cn.Narrator)
                 .FirstOrDefaultAsync(c => c.Id == id, cancellationToken);
@@ -27,8 +26,10 @@ namespace SlientMoon.Infrastructure.Persistence.Repositories
 
         public async Task<List<Course>> GetHomeFeedCoursesAsync(CancellationToken cancellationToken)
         {
-            return await _appDbContext.Courses
+            return await _dbSet
                 .AsNoTracking()
+                .Include(c => c.Category)
+                    .ThenInclude(cat => cat.CategoryType)
                 .Include(c => c.CourseNarrators)
                     .ThenInclude(cn => cn.Narrator)
                 .ToListAsync(cancellationToken);

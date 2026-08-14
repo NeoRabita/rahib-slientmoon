@@ -27,7 +27,7 @@ namespace SlientMoon.Application.Features.Topics.Queries.GetAllTopics
         {
             _logger.LogInformation("Sistemdəki bütün mövzuların gətirilməsi sorğusu başladı.");
 
-            var topics = await _uow.TopicRepository.GetAllTopicsAsync();
+            var topics = await _uow.TopicRepository.GetAllAsync();
 
             var topicDtos = topics.Select(t => new TopicDto
             {
