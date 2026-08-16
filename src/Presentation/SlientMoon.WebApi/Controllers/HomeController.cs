@@ -11,7 +11,9 @@ namespace SlientMoon.WebApi.Controllers
         [HttpGet]
         public async Task<IResult> GetHomeFeed(CancellationToken ct)
         {
-            var result = await Dispatcher.Send(new GetHomeFeedQuery(), ct);
+            string? language = Request.Headers["Accept-Language"].ToString();
+
+            var result = await Dispatcher.Send(new GetHomeFeedQuery(language), ct);
 
             return HandleResult(result);
         }

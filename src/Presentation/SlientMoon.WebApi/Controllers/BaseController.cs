@@ -24,19 +24,20 @@ namespace SlientMoon.WebApi.Controllers
 
             if (result.Value is TrackStreamDto streamDto)
             {
+                long start = streamDto.Offset ?? 0;
+                long chunkLength = streamDto.Length;
+                long end = start + chunkLength - 1;
+                long total = streamDto.TotalSize;
+
+                if (end >= total)
+                {
+                    end = total - 1;
+                }
+
                 Response.Headers["Accept-Ranges"] = "bytes";
-
-                if (!string.IsNullOrEmpty(streamDto.ContentRange))
-                {
-                    Response.Headers["Content-Range"] = streamDto.ContentRange;
-                }
-
-                if (streamDto.ContentLength.HasValue)
-                {
-                    Response.ContentLength = streamDto.ContentLength.Value;
-                }
-
-                Response.StatusCode = streamDto.StatusCode;
+                Response.StatusCode = StatusCodes.Status206PartialContent; // HƏMİŞƏ 206
+                Response.Headers["Content-Range"] = $"bytes {start}-{end}/{total}";
+                Response.ContentLength = chunkLength; // Yalnız 1MB-lıq hissənin ölçüsü
 
                 return Results.Stream(
                     stream: streamDto.Stream,

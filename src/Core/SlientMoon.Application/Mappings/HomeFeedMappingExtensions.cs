@@ -7,20 +7,28 @@ namespace SlientMoon.Application.Mappings
 {
     public static class HomeFeedMappingExtensions
     {
-        public static CourseDto ToHomeCourseDto(this Course course)
+        public static CourseDto ToHomeCourseDto(this Course course, string currentLang)
         {
+            var translation = course.Translations?.FirstOrDefault(t => t.LanguageCode == currentLang);
+
             return new CourseDto
             {
                 Id = course.Id,
-                Title = course.Title,
-                Subtitle = course.Subtitle,
+                Title = translation?.Title ?? course.Title,
+                Subtitle = translation?.Subtitle ?? course.Subtitle,
+                Description = translation?.Description ?? course.Description,
                 Type = course.Category?.CategoryType?.Slug?.ToLower() ?? string.Empty,
                 ImageUrl = course.ImageUrl,
                 DurationSec = course.DurationSec,
                 IsFeatured = course.IsFeatured,
-                Narrators = course.CourseNarrators
-                    .Select(cn => cn.Narrator.Gender.ToString().ToLower())
-                    .ToList()
+                CreatedAt = course.CreatedAt,
+                CategoryId = course.CategoryId,
+                TrackCount = course.Tracks != null ? course.Tracks.Count() : 0,
+                Narrators = course.CourseNarrators != null
+                    ? course.CourseNarrators
+                        .Where(cn => cn.Narrator != null)
+                        .Select(cn => cn.Narrator.Gender.ToString().ToLower())
+                        .ToList() : new()
             };
         }
 

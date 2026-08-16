@@ -32,6 +32,9 @@ namespace SlientMoon.Infrastructure.Persistence.Repositories
                     .ThenInclude(cat => cat.CategoryType)
                 .Include(c => c.CourseNarrators)
                     .ThenInclude(cn => cn.Narrator)
+                .Include(c => c.Tracks)
+                .Include(c => c.Translations)
+                .AsNoTracking()
                 .ToListAsync(cancellationToken);
         }
     }

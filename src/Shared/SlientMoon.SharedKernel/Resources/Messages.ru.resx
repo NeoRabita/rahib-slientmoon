@@ -378,4 +378,19 @@
   <data name="Reminder.NotFound" xml:space="preserve">
     <value>Напоминание не найдено.</value>
   </data>
+  <data name="Greeting.Morning" xml:space="preserve">
+    <value>Доброе утро</value>
+  </data>
+  <data name="Greeting.Afternoon" xml:space="preserve">
+    <value>Добрый день</value>
+  </data>
+  <data name="Greeting.Evening" xml:space="preserve">
+    <value>Добрый вечер</value>
+  </data>
+  <data name="Greeting.Submessage" xml:space="preserve">
+    <value>Желаем вам хорошего дня</value>
+  </data>
+  <data name="Home.RecommendedForYou" xml:space="preserve">
+    <value>Рекомендовано для вас</value>
+  </data>
 </root>
