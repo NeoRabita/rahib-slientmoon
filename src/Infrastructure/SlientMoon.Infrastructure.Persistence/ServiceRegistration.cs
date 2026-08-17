@@ -66,6 +66,7 @@ namespace SlientMoon.Infrastructure.Persistence
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IFavoriteRepository, FavoriteRepository>();
             services.AddScoped<IPasswordHasher, PasswordHasherService>();
+            services.AddScoped<ILanguageService, LanguageService>();
             services.AddScoped<IUow, Uow>();
             RegisterDapperDomainMappings();
         }

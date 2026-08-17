@@ -378,4 +378,19 @@
   <data name="Reminder.NotFound" xml:space="preserve">
     <value>Xatırlatma tapılmadı.</value>
   </data>
+  <data name="Greeting.Morning" xml:space="preserve">
+    <value>Sabahınız xeyir</value>
+  </data>
+  <data name="Greeting.Afternoon" xml:space="preserve">
+    <value>Günortanız Xeyir</value>
+  </data>
+  <data name="Greeting.Evening" xml:space="preserve">
+    <value>Axşamınız xeyir</value>
+  </data>
+  <data name="Greeting.Submessage" xml:space="preserve">
+    <value>Uğurlu bir gün keçirməyinizi arzulayırıq</value>
+  </data>
+  <data name="Home.RecommendedForYou" xml:space="preserve">
+    <value>Sizin üçün tövsiyə olunanlar</value>
+  </data>
 </root>

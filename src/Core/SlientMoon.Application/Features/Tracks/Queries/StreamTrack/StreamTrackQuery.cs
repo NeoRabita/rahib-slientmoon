@@ -33,7 +33,7 @@ namespace SlientMoon.Application.Features.Tracks.Queries.StreamTrack
 
         public async Task<Result<TrackStreamDto>> Handle(StreamTrackQuery query, CancellationToken ct)
         {
-            //var userId = _currentUserService.GetUser();
+            var userId = _currentUserService.GetUser();
 
             var track = await _uow.GenericRepository<Track>().GetByIdAsync(query.Id, ct);
             if (track is null || string.IsNullOrWhiteSpace(track.AudioUrl))
@@ -41,10 +41,30 @@ namespace SlientMoon.Application.Features.Tracks.Queries.StreamTrack
 
             var fileName = Path.GetFileName(track.AudioUrl);
 
+            long? offset = null;
+            long? length = null;
+
+            // "bytes=1024-2048" String-ini parse edirik
+            if (!string.IsNullOrEmpty(query.RangeHeader) && query.RangeHeader.StartsWith("bytes="))
+            {
+                var rangeValue = query.RangeHeader.Replace("bytes=", "");
+                var parts = rangeValue.Split('-');
+
+                if (long.TryParse(parts[0], out long start))
+                {
+                    offset = start;
+                    if (parts.Length > 1 && long.TryParse(parts[1], out long end))
+                    {
+                        length = end - start + 1;
+                    }
+                }
+            }
+
             return await _storageService.GetStreamAsync(
                 fileName,
                 StorageType.Audio,
-                query.RangeHeader,
+                offset,
+                length,
                 ct);
         }
     }

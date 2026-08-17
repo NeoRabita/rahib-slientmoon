@@ -5,10 +5,18 @@ namespace SlientMoon.Application.DTOs.Home
 {
     public class HomeDto
     {
+        public GreetingDto Greeting { get; set; } = new();
+        public string RecommendedTitle { get; set; }
         public List<CourseDto> Recommended { get; set; } = new();
         public DailyThoughtDto? DailyThought { get; set; }
         public List<CourseDto> FeaturedSleep { get; set; } = new();
         public List<CourseDto> PopularMeditations { get; set; } = new();
+    }
+
+    public class GreetingDto
+    {
+        public string Title { get; set; } = string.Empty;
+        public string Message { get; set; } = string.Empty;
     }
 
     public class DailyThoughtDto

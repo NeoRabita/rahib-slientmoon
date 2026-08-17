@@ -430,6 +430,51 @@ namespace SlientMoon.SharedKernel.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Good Afternoon.
+        /// </summary>
+        public static string Greeting_Afternoon {
+            get {
+                return ResourceManager.GetString("Greeting.Afternoon", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Good Evening.
+        /// </summary>
+        public static string Greeting_Evening {
+            get {
+                return ResourceManager.GetString("Greeting.Evening", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Good Morning.
+        /// </summary>
+        public static string Greeting_Morning {
+            get {
+                return ResourceManager.GetString("Greeting.Morning", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to We wish you have a good day.
+        /// </summary>
+        public static string Greeting_Submessage {
+            get {
+                return ResourceManager.GetString("Greeting.Submessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Recommended for you.
+        /// </summary>
+        public static string Home_RecommendedForYou {
+            get {
+                return ResourceManager.GetString("Home.RecommendedForYou", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to &apos;{PropertyName}&apos; must be between {From} and {To}..
         /// </summary>
         public static string InclusiveBetweenValidator {
