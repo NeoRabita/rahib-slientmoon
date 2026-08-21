@@ -24,21 +24,25 @@ namespace SlientMoon.WebApi.Controllers
 
             if (result.Value is TrackStreamDto streamDto)
             {
-                long start = streamDto.Offset ?? 0;
-                long chunkLength = streamDto.Length;
-                long end = start + chunkLength - 1;
-                long total = streamDto.TotalSize;
+                // 1. MinIO-dan gələn Status Code-u təyin edirik (Məsələn: 206 və ya 200)
+                Response.StatusCode = streamDto.StatusCode;
 
-                if (end >= total)
+                // 2. Accept-Ranges header-ini əlavə edirik
+                Response.Headers["Accept-Ranges"] = "bytes";
+
+                // 3. Əgər MinIO Content-Range qaytarıbsa, cavaba yazırıq
+                if (!string.IsNullOrEmpty(streamDto.ContentRange))
                 {
-                    end = total - 1;
+                    Response.Headers["Content-Range"] = streamDto.ContentRange;
                 }
 
-                Response.Headers["Accept-Ranges"] = "bytes";
-                Response.StatusCode = StatusCodes.Status206PartialContent; // HƏMİŞƏ 206
-                Response.Headers["Content-Range"] = $"bytes {start}-{end}/{total}";
-                Response.ContentLength = chunkLength; // Yalnız 1MB-lıq hissənin ölçüsü
+                // 4. Content-Length-i təyin edirik
+                if (streamDto.ContentLength.HasValue)
+                {
+                    Response.ContentLength = streamDto.ContentLength.Value;
+                }
 
+                // 5. Şəbəkə axınını (Stream) müştəriyə ötürürük
                 return Results.Stream(
                     stream: streamDto.Stream,
                     contentType: streamDto.ContentType

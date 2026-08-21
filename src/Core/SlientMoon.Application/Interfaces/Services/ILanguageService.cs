@@ -1,7 +1,9 @@
-﻿namespace SlientMoon.Application.Interfaces.Services
+﻿using SlientMoon.Domain.Enums;
+
+namespace SlientMoon.Application.Interfaces.Services
 {
     public interface ILanguageService
     {
-        string ValidateLanguage(string language);
+        LanguageCode ValidateLanguage(string? language);
     }
 }

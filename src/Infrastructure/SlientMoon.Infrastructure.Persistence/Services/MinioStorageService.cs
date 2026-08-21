@@ -81,85 +81,38 @@ namespace SlientMoon.Infrastructure.Persistence.Services
         public async Task<TrackStreamDto> GetStreamAsync(
             string fileName,
             StorageType storageType,
-            long? offset,
-            long? length,
+            string? rangeHeader,
             CancellationToken ct)
         {
             var bucketName = storageType.GetBucketName(_options);
 
-            // 1. Faylın metadatasını və ümumi ölçüsünü alırıq
-            var statArgs = new StatObjectArgs()
-                .WithBucket(bucketName)
-                .WithObject(fileName);
+            var presignedArgs = new PresignedGetObjectArgs()
+                           .WithBucket(bucketName)
+                           .WithObject(fileName)
+                           .WithExpiry(60 * 60);
 
-            var stat = await _minioClient.StatObjectAsync(statArgs, ct);
-            long totalSize = stat.Size;
+            var presignedUrl = await _minioClient.PresignedGetObjectAsync(presignedArgs);
 
-            // 2. Chunk ölçülərini təyin edirik
-            const long CHUNK_SIZE = 1 * 1024 * 1024; // 1 MB
-            long startOffset = offset ?? 0;
-            long requestedLength = length ?? CHUNK_SIZE;
+            var requestMessage = new HttpRequestMessage(HttpMethod.Get, presignedUrl);
 
-            if (startOffset + requestedLength > totalSize)
+            // 3. Client-dən gələn Range header-ini MinIO-ya yönləndiririk
+            if (!string.IsNullOrEmpty(rangeHeader))
             {
-                requestedLength = totalSize - startOffset;
+                requestMessage.Headers.TryAddWithoutValidation("Range", rangeHeader);
             }
 
-            var memoryStream = new MemoryStream();
+            // 4. Sorğunu göndəririk (Body-ni buffering etmədən, yalnız header-ləri oxuyuruq)
+            var response = await _httpClient.SendAsync(requestMessage, HttpCompletionOption.ResponseHeadersRead, ct);
 
-            // 3. WithOffsetAndLength İSTİFADƏ ETMİRİK (Exception atmasın və callback dəqiq işləsin deyə)
-            var getObjectArgs = new GetObjectArgs()
-                .WithBucket(bucketName)
-                .WithObject(fileName)
-                .WithCallbackStream(async (stream, cancellationToken) =>
-                {
-                    // A. Tələb olunan offset pozisiyasına keçirik (Seek və ya Skip)
-                    if (startOffset > 0 && stream.CanSeek)
-                    {
-                        stream.Seek(startOffset, SeekOrigin.Begin);
-                    }
-                    else if (startOffset > 0)
-                    {
-                        byte[] buffer = new byte[8192];
-                        long skipped = 0;
-                        while (skipped < startOffset)
-                        {
-                            int toRead = (int)Math.Min(buffer.Length, startOffset - skipped);
-                            int read = await stream.ReadAsync(buffer, 0, toRead, cancellationToken);
-                            if (read == 0) break;
-                            skipped += read;
-                        }
-                    }
-
-                    // B. Yalnız bizə lazım olan requestedLength (1 MB) qədər hissəni RAM-a kopyalayırıq
-                    byte[] chunkBuffer = new byte[8192];
-                    long bytesCopied = 0;
-                    while (bytesCopied < requestedLength)
-                    {
-                        int toRead = (int)Math.Min(chunkBuffer.Length, requestedLength - bytesCopied);
-                        int read = await stream.ReadAsync(chunkBuffer, 0, toRead, cancellationToken);
-                        if (read == 0) break;
-
-                        await memoryStream.WriteAsync(chunkBuffer, 0, read, cancellationToken);
-                        bytesCopied += read;
-                    }
-                });
-
-            // 4. MinIO-dan obyekti xətasız oxuyuruq
-            await _minioClient.GetObjectAsync(getObjectArgs, ct);
-
-            // 5. RAM-dakı stream-in göstəricisini başa qaytarırıq
-            memoryStream.Position = 0;
-
-            var contentType = string.IsNullOrWhiteSpace(stat.ContentType) ? "audio/mpeg" : stat.ContentType;
+            var responseStream = await response.Content.ReadAsStreamAsync(ct);
 
             return new TrackStreamDto
             {
-                Stream = memoryStream,
-                ContentType = contentType,
-                TotalSize = totalSize,
-                Offset = startOffset,
-                Length = memoryStream.Length
+                Stream = responseStream,
+                ContentType = response.Content.Headers.ContentType?.ToString() ?? "audio/mpeg",
+                StatusCode = (int)response.StatusCode,
+                ContentLength = response.Content.Headers.ContentLength,
+                ContentRange = response.Content.Headers.ContentRange?.ToString()
             };
         }
     }

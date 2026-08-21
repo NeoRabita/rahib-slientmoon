@@ -8,10 +8,9 @@ namespace SlientMoon.WebApi.Controllers
     public class StreamingController : BaseController
     {
         [HttpGet("{id}/stream")]
-        public async Task<IResult> StreamTrack(
-            [FromRoute] string id)
+        public async Task<IResult> StreamTrack([FromRoute] string id)
         {
-            var rangeHeader = Request.Headers["Range"].ToString(); 
+            string? rangeHeader = Request.Headers.Range.ToString();
 
             var result = await Dispatcher.Send(new StreamTrackQuery(id, rangeHeader));
 

@@ -22,7 +22,8 @@ namespace SlientMoon.Infrastructure.Persistence.Contexts
         public DbSet<DailyThought> DailyThoughts { get; set; }
         public DbSet<Favorite> Favorites { get; set; }
         public DbSet<Track> Tracks { get; set; }
-        public DbSet<CourseTranslation> CourseTranslations { get; set; }
+
+        public DbSet<Translation> Translations { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

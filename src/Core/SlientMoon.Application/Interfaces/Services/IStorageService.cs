@@ -13,8 +13,7 @@ namespace SlientMoon.Application.Interfaces.Services
         Task<TrackStreamDto> GetStreamAsync(
             string fileName,
             StorageType storageType,
-            long? offset,
-            long? length,
+            string? rangeHeader,
             CancellationToken ct);
         Task<Stream> DownloadAsync(string fileName, StorageType storageType, CancellationToken cancellationToken);
         Task DeleteAsync(string fileName, StorageType storageType, CancellationToken cancellationToken);

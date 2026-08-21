@@ -1,10 +1,14 @@
 ﻿using Application.Abstractions.Messaging;
 using Microsoft.Extensions.Localization;
+using SlientMoon.Application.Common.Extensions;
 using SlientMoon.Application.DTOs.Home;
 using SlientMoon.Application.Interfaces.Logging;
 using SlientMoon.Application.Interfaces.Services;
 using SlientMoon.Application.Mappings;
+using SlientMoon.Domain.Entities;
+using SlientMoon.Domain.Enums;
 using SlientMoon.SharedKernel.Resources;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -29,6 +33,7 @@ namespace SlientMoon.Application.Features.Home.Queries.GetHomeFeed
         private readonly ICurrentUserService _currentUserService;
         private readonly IStringLocalizer<Messages> _localizer;
         private readonly ILanguageService _languageService;
+        private readonly ITranslationService _translationService;
 
         public GetHomeFeedQueryHandler(
             IUow uow,
@@ -36,7 +41,8 @@ namespace SlientMoon.Application.Features.Home.Queries.GetHomeFeed
             IDateTimeService dateTimeService,
             ICurrentUserService currentUserService,
             IStringLocalizer<Messages> localizer,
-            ILanguageService languageService)
+            ILanguageService languageService,
+            ITranslationService translationService)
         {
             _uow = uow;
             _logger = logger;
@@ -44,17 +50,18 @@ namespace SlientMoon.Application.Features.Home.Queries.GetHomeFeed
             _currentUserService = currentUserService;
             _localizer = localizer;
             _languageService = languageService;
+            _translationService = translationService;
         }
 
         public async Task<Result<HomeDto>> Handle(GetHomeFeedQuery query, CancellationToken ct)
         {
             string userId = _currentUserService.GetUser();
-            string currentLang = _languageService.ValidateLanguage(query.Language);
+            LanguageCode currentLang = _languageService.ValidateLanguage(query.Language);
 
             _logger.LogInformation("Home feed məlumatları sorğulanır.");
 
             var user = await _uow.UserRepository.GetByIdAsync(userId, ct);
-            string userName = user.Name ?? "User";
+            string userName = user?.Name ?? "User";
             var now = _dateTimeService.NowUtc;
             var hour = now.Hour;
 
@@ -72,7 +79,6 @@ namespace SlientMoon.Application.Features.Home.Queries.GetHomeFeed
             };
             var recommendedTitle = _localizer["Home.RecommendedForYou"].Value;
 
-
             var today = _dateTimeService.NowUtc.Date;
 
             var dailyThoughtEntity = await _uow.DailyThoughtRepository.GetDailyThoughtByDateAsync(today, ct);
@@ -85,9 +91,21 @@ namespace SlientMoon.Application.Features.Home.Queries.GetHomeFeed
 
             var allCourses = await _uow.CourseRepository.GetHomeFeedCoursesAsync(ct);
 
+            Dictionary<string, string>? translations = null;
+            if (currentLang != LanguageCode.EN && allCourses.Any())
+            {
+                var keys = allCourses.GetTranslationKeys(
+                    nameof(Course.Title),
+                    nameof(Course.Subtitle),
+                    nameof(Course.Description)
+                );
+
+                translations = await _translationService.GetTranslationsAsync(keys, currentLang, ct);
+            }
+
             var recommended = allCourses
                 .Take(4)
-                .Select(c => c.ToHomeCourseDto(currentLang))
+                .Select(c => c.ToHomeCourseDto(translations))
                 .ToList();
 
             var featuredSleep = allCourses
@@ -96,7 +114,7 @@ namespace SlientMoon.Application.Features.Home.Queries.GetHomeFeed
                             c.Category.CategoryType.Slug.ToLower() == "sleep" &&
                             c.IsFeatured)
                 .Take(4)
-                .Select(c => c.ToHomeCourseDto(currentLang))
+                .Select(c => c.ToHomeCourseDto(translations))
                 .ToList();
 
             var popularMeditations = allCourses
@@ -105,7 +123,7 @@ namespace SlientMoon.Application.Features.Home.Queries.GetHomeFeed
                             c.Category.CategoryType.Slug.ToLower() == "meditation")
                 .OrderByDescending(c => c.ViewCount)
                 .Take(4)
-                .Select(c => c.ToHomeCourseDto(currentLang))
+                .Select(c => c.ToHomeCourseDto(translations))
                 .ToList();
 
             var response = new HomeDto
@@ -121,5 +139,4 @@ namespace SlientMoon.Application.Features.Home.Queries.GetHomeFeed
             return response;
         }
     }
-
 }

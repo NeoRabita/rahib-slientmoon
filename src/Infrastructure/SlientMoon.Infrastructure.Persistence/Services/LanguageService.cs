@@ -1,21 +1,22 @@
 ﻿using SlientMoon.Application.Interfaces.Services;
+using SlientMoon.Domain.Enums;
 
 namespace SlientMoon.Infrastructure.Persistence.Services
 {
     public class LanguageService : ILanguageService
     {
-        public string ValidateLanguage(string? lang)
+        public LanguageCode ValidateLanguage(string? lang)
         {
             if (string.IsNullOrWhiteSpace(lang))
-                return "en";
+                return LanguageCode.EN;
 
             var cleanLang = lang.Split(',')[0].Split('-')[0].Trim().ToLower();
 
             return cleanLang switch
             {
-                "az" => "az",
-                "ru" => "ru",
-                _ => "en"
+                "az" => LanguageCode.AZ,
+                "ru" => LanguageCode.RU,
+                _ => LanguageCode.EN
             };
         }
     }

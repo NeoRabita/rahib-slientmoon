@@ -6,8 +6,8 @@ namespace SlientMoon.Application.DTOs.Storage
     {
         public Stream Stream { get; set; } = null!;
         public string ContentType { get; set; } = "audio/mpeg";
-        public long TotalSize { get; set; }
-        public long? Offset { get; set; }
-        public long Length { get; set; }
+        public int StatusCode { get; set; } = 200;
+        public long? ContentLength { get; set; }
+        public string? ContentRange { get; set; }
     }
 }

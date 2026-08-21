@@ -22,6 +22,5 @@ namespace SlientMoon.Domain.Entities
         public ICollection<Track> Tracks { get; set; } = new List<Track>();
         public ICollection<CourseNarrator> CourseNarrators { get; set; } = new List<CourseNarrator>();
         public ICollection<DailyThought> DailyThoughts { get; set; } = new List<DailyThought>();
-        public ICollection<CourseTranslation> Translations { get; set; } = new List<CourseTranslation>();
     }
 }
